@@ -1,0 +1,20 @@
+{
+  "name": "LinkHive",
+  "short_name": "LinkHive",
+  "description": "Never lose a link again — organize, search, and sync your bookmarks",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#1e1e2e",
+  "theme_color": "#89b4fa",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"]
+}

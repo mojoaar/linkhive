@@ -1,0 +1,173 @@
+[data-theme="catppuccin"][data-mode="dark"] {
+  --bg: #1e1e2e;
+  --bg-elevated: #313244;
+  --bg-inset: #181825;
+  --text: #cdd6f4;
+  --text-muted: #a6adc8;
+  --text-faint: #6c7086;
+  --border: #45475a;
+  --border-light: #313244;
+  --accent: #89b4fa;
+  --accent-hover: #74a8f7;
+  --accent-text: #1e1e2e;
+  --danger: #f38ba8;
+  --danger-hover: #e07b94;
+  --warning: #f9e2af;
+  --success: #a6e3a1;
+  --header-bg: #1e1e2e;
+  --sidebar-bg: #181825;
+  --card-bg: #313244;
+  --input-bg: #313244;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+  --overlay: rgba(0,0,0,0.6);
+  --scrollbar-thumb: #45475a;
+  --chip-bg: #313244;
+  --chip-active-bg: #89b4fa;
+  --chip-active-text: #1e1e2e;
+}
+
+[data-theme="catppuccin"][data-mode="light"] {
+  --bg: #eff1f5;
+  --bg-elevated: #e6e9ef;
+  --bg-inset: #dce0e8;
+  --text: #4c4f69;
+  --text-muted: #8c8fa1;
+  --text-faint: #bcc0cc;
+  --border: #ccd0da;
+  --border-light: #dce0e8;
+  --accent: #1e66f5;
+  --accent-hover: #1555e0;
+  --accent-text: #ffffff;
+  --danger: #d20f39;
+  --danger-hover: #b80d32;
+  --warning: #df8e1d;
+  --success: #40a02b;
+  --header-bg: #eff1f5;
+  --sidebar-bg: #e6e9ef;
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  --overlay: rgba(0,0,0,0.4);
+  --scrollbar-thumb: #ccd0da;
+  --chip-bg: #e6e9ef;
+  --chip-active-bg: #1e66f5;
+  --chip-active-text: #ffffff;
+}
+
+[data-theme="dracula"][data-mode="dark"] {
+  --bg: #282a36;
+  --bg-elevated: #343746;
+  --bg-inset: #21222c;
+  --text: #f8f8f2;
+  --text-muted: #a4a5b2;
+  --text-faint: #6272a4;
+  --border: #44475a;
+  --border-light: #343746;
+  --accent: #bd93f9;
+  --accent-hover: #a67cf0;
+  --accent-text: #282a36;
+  --danger: #ff5555;
+  --danger-hover: #e04444;
+  --warning: #ffb86c;
+  --success: #50fa7b;
+  --header-bg: #282a36;
+  --sidebar-bg: #21222c;
+  --card-bg: #343746;
+  --input-bg: #343746;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+  --overlay: rgba(0,0,0,0.6);
+  --scrollbar-thumb: #44475a;
+  --chip-bg: #343746;
+  --chip-active-bg: #bd93f9;
+  --chip-active-text: #282a36;
+}
+
+[data-theme="dracula"][data-mode="light"] {
+  --bg: #f8f8f2;
+  --bg-elevated: #f0f0ea;
+  --bg-inset: #e8e8e0;
+  --text: #282a36;
+  --text-muted: #6272a4;
+  --text-faint: #b4b7c4;
+  --border: #d0d0cc;
+  --border-light: #e0e0da;
+  --accent: #6b3fa0;
+  --accent-hover: #5a3588;
+  --accent-text: #ffffff;
+  --danger: #e04444;
+  --danger-hover: #c03333;
+  --warning: #d4850e;
+  --success: #2e9e4b;
+  --header-bg: #f8f8f2;
+  --sidebar-bg: #f0f0ea;
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  --overlay: rgba(0,0,0,0.4);
+  --scrollbar-thumb: #d0d0cc;
+  --chip-bg: #f0f0ea;
+  --chip-active-bg: #6b3fa0;
+  --chip-active-text: #ffffff;
+}
+
+[data-theme="nord"][data-mode="dark"] {
+  --bg: #2e3440;
+  --bg-elevated: #3b4252;
+  --bg-inset: #242933;
+  --text: #eceff4;
+  --text-muted: #a5aebb;
+  --text-faint: #6c7693;
+  --border: #4c566a;
+  --border-light: #3b4252;
+  --accent: #88c0d0;
+  --accent-hover: #74b5c6;
+  --accent-text: #2e3440;
+  --danger: #bf616a;
+  --danger-hover: #a8535c;
+  --warning: #ebcb8b;
+  --success: #a3be8c;
+  --header-bg: #2e3440;
+  --sidebar-bg: #242933;
+  --card-bg: #3b4252;
+  --input-bg: #3b4252;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+  --overlay: rgba(0,0,0,0.6);
+  --scrollbar-thumb: #4c566a;
+  --chip-bg: #3b4252;
+  --chip-active-bg: #88c0d0;
+  --chip-active-text: #2e3440;
+}
+
+[data-theme="nord"][data-mode="light"] {
+  --bg: #eceff4;
+  --bg-elevated: #e5e9f0;
+  --bg-inset: #d8dee9;
+  --text: #2e3440;
+  --text-muted: #5e6f87;
+  --text-faint: #b0b9cc;
+  --border: #d8dee9;
+  --border-light: #e5e9f0;
+  --accent: #5e81ac;
+  --accent-hover: #4c6d96;
+  --accent-text: #ffffff;
+  --danger: #bf616a;
+  --danger-hover: #a8535c;
+  --warning: #d08770;
+  --success: #87a96b;
+  --header-bg: #eceff4;
+  --sidebar-bg: #e5e9f0;
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  --overlay: rgba(0,0,0,0.4);
+  --scrollbar-thumb: #d8dee9;
+  --chip-bg: #e5e9f0;
+  --chip-active-bg: #5e81ac;
+  --chip-active-text: #ffffff;
+}

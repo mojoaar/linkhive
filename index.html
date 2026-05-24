@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="catppuccin" data-mode="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+<title>LinkHive — Never lose a link again</title>
+<meta name="description" content="Organize, search, and sync your bookmarks across devices. A privacy-first, client-side link manager that works offline.">
+<meta name="keywords" content="bookmarks, link manager, bookmark manager, link organizer, save links, PWA">
+<meta name="author" content="Morten Johansen">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://linkhive.app/">
+
+<!-- Open Graph -->
+<meta property="og:title" content="LinkHive — Never lose a link again">
+<meta property="og:description" content="Organize, search, and sync your bookmarks across devices. A privacy-first, client-side link manager.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://linkhive.app/">
+<meta property="og:image" content="favicon.svg">
+<meta property="og:site_name" content="LinkHive">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LinkHive — Never lose a link again">
+<meta name="twitter:description" content="Organize, search, and sync your bookmarks across devices. A privacy-first, client-side link manager.">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1e1e2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LinkHive">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"LinkHive","description":"Never lose a link again — organize, search, and sync your bookmarks","applicationCategory":"BrowserApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0"}}
+</script>
+
+<!-- Styles -->
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/themes.css">
+<link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+<!-- ========== APP LAYOUT ========== -->
+<div class="app-layout" id="appLayout">
+
+<!-- ===== Sidebar ===== -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <div class="sidebar-panel">
+    <div class="sidebar-header">
+      <div class="sidebar-user" id="sidebarUser">
+        <div class="sidebar-avatar" id="sidebarAvatar">?</div>
+        <span class="sidebar-name" id="sidebarName">LinkHive</span>
+      </div>
+      <button class="btn-icon sidebar-close" id="sidebarClose" aria-label="Close sidebar">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#/" class="sidebar-link" data-route="/">
+        <i data-lucide="home"></i>
+        <span>All Links</span>
+      </a>
+      <a href="#/tags" class="sidebar-link" data-route="/tags">
+        <i data-lucide="tag"></i>
+        <span>Tags</span>
+      </a>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">
+          <span>Add Link</span>
+        </div>
+        <button class="sidebar-link" id="quickAddBtn">
+          <i data-lucide="link"></i>
+          <span>Add Link</span>
+        </button>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">
+          <span>Collections</span>
+          <button class="btn-icon-sm" id="addCollectionSidebar" aria-label="Add collection">
+            <i data-lucide="plus"></i>
+          </button>
+        </div>
+        <div class="sidebar-collections" id="sidebarCollections"></div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="sidebar-footer-btn" id="sidebarSyncBtn">
+        <i data-lucide="settings"></i>
+        <span>Settings</span>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== Main Wrapper ===== -->
+<div class="main-wrapper" id="mainWrapper">
+
+<!-- ===== Header ===== -->
+<header class="header" id="header">
+  <div class="header-left">
+    <button class="btn-icon sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+      <i data-lucide="menu"></i>
+    </button>
+    <h1 class="header-title">LinkHive</h1>
+  </div>
+  <div class="header-search" id="headerSearch">
+    <span class="search-icon-wrap"><i data-lucide="search"></i></span>
+    <input type="search" class="search-input" id="searchInput" placeholder="Search..." autocomplete="off" aria-label="Search links">
+  </div>
+  <div class="header-right">
+    <button class="btn-icon theme-quick-toggle" id="themeQuickToggle" aria-label="Toggle dark/light mode">
+      <span class="theme-toggle-icon"><i data-lucide="moon"></i></span>
+    </button>
+    <button class="btn-icon" id="settingsToggle" aria-label="Settings">
+      <i data-lucide="settings"></i>
+    </button>
+  </div>
+</header>
+
+<!-- ===== Main Content ===== -->
+<main class="main-content" id="mainContent">
+
+  <div class="collection-chips" id="collectionChips"></div>
+
+  <div class="toolbar" id="toolbar">
+    <div class="toolbar-left">
+      <button class="btn-view-toggle active" data-view="list" aria-label="List view" title="List view">
+        <i data-lucide="list"></i>
+      </button>
+      <button class="btn-view-toggle" data-view="grid" aria-label="Grid view" title="Grid view">
+        <i data-lucide="grid-3x3"></i>
+      </button>
+      <select class="sort-select" id="sortSelect">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="title">Title A–Z</option>
+      </select>
+    </div>
+    <div class="toolbar-right">
+      <button class="btn-view-toggle" id="btnSelectMode" aria-label="Select mode" title="Select links">
+        <i data-lucide="check-square"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="link-grid" id="linkGrid"></div>
+
+  <div class="empty-state hidden" id="emptyState">
+    <i data-lucide="bookmark" class="empty-icon" style="width:48px;height:48px;opacity:0.3"></i>
+    <h2>No links yet</h2>
+    <p>Save your first link and never lose it again</p>
+    <button class="btn-primary" id="emptyAddBtn">
+      <i data-lucide="plus"></i>
+      <span>Add Link</span>
+    </button>
+  </div>
+
+  <div class="loading-state hidden" id="loadingState">
+    <div class="spinner"></div>
+    <p>Loading links...</p>
+  </div>
+</main>
+
+<!-- ===== Bottom Bar (mobile) ===== -->
+<nav class="bottom-bar" id="bottomBar">
+  <button class="bottom-bar-btn active" data-route="/" aria-label="Home">
+    <i data-lucide="home"></i>
+    <span>Home</span>
+  </button>
+  <button class="bottom-bar-btn" id="bottomSearchBtn" aria-label="Search">
+    <i data-lucide="search"></i>
+    <span>Search</span>
+  </button>
+  <button class="bottom-bar-btn" id="bottomAddBtn" aria-label="Add link">
+    <i data-lucide="plus"></i>
+    <span>Add</span>
+  </button>
+</nav>
+
+</div><!-- /main-wrapper -->
+</div><!-- /app-layout -->
+
+<!-- ========== BULK ACTION BAR ========== -->
+<div class="bulk-bar hidden" id="bulkBar">
+  <span class="bulk-count" id="bulkCount">0 selected</span>
+  <button class="btn-secondary btn-sm" id="bulkSelectAllBtn" onclick="LinkHive.LinkGrid.selectAllVisible()">
+    <i data-lucide="check-square"></i>
+    <span>Select All</span>
+  </button>
+  <select class="bulk-move-select" id="bulkMoveSelect" onchange="LinkHive.LinkGrid.bulkMove(this.value);this.value='';">
+    <option value="">Move to...</option>
+  </select>
+  <button class="btn-secondary btn-danger-outline btn-sm" id="bulkDeleteBtn" onclick="LinkHive.LinkGrid.bulkDelete()">
+    <i data-lucide="trash-2"></i>
+    <span>Delete Selected</span>
+  </button>
+</div>
+
+<!-- ========== ONBOARDING ========== -->
+<div class="onboarding hidden" id="onboarding">
+  <div class="onboarding-logo">
+    <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+      <rect width="64" height="64" rx="14" fill="var(--bg-elevated)"/>
+      <path d="M32 6L54 19v26L32 58 10 45V19L32 6z" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M22 26a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" fill="var(--accent)"/>
+      <path d="M42 46a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" fill="var(--accent)"/>
+      <path d="M26 22l12 20" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <h1>Welcome to LinkHive</h1>
+  <p class="onboarding-tagline">Never lose a link again</p>
+  <div class="onboarding-form" id="onboardingForm">
+    <div class="form-group">
+      <label class="form-label" for="onboardingName">Your Name</label>
+      <input type="text" id="onboardingName" class="form-input" placeholder="e.g. John Doe" autocomplete="name">
+    </div>
+    <div class="setting-group">
+      <label class="setting-label">Storage</label>
+      <div class="radio-group">
+        <label class="radio-label">
+          <input type="radio" name="onboardingStorage" value="local" class="radio-input" checked>
+          <span>Local Storage (this device only)</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="onboardingStorage" value="github" class="radio-input">
+          <span>GitHub Repository (sync across devices)</span>
+        </label>
+      </div>
+    </div>
+    <div class="hidden" id="onboardingGithub">
+      <div class="form-group">
+        <label class="form-label" for="onboardingToken">GitHub PAT</label>
+        <input type="password" id="onboardingToken" class="form-input" placeholder="ghp_...">
+        <p class="setting-hint">Create a token with <strong>repo</strong> scope at <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">github.com/settings/tokens</a></p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="onboardingRepo">Repository</label>
+        <input type="text" id="onboardingRepo" class="form-input" placeholder="owner/repo-name">
+      </div>
+    </div>
+    <button class="btn-primary btn-full" id="onboardingCreate">Get Started</button>
+  </div>
+</div>
+
+<!-- ========== MODALS ========== -->
+
+<!-- Settings Modal -->
+<div class="modal-overlay hidden" id="settingsModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Settings</h2>
+      <button class="btn-icon modal-close" id="settingsClose" aria-label="Close">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+    <div class="modal-body" id="settingsBody">
+      <div class="setting-group" id="settingsNameSection">
+        <label class="setting-label" for="settingsName">Name</label>
+        <input type="text" id="settingsName" class="setting-input" placeholder="Your name">
+      </div>
+
+      <div class="setting-group" id="settingsAvatarSection">
+        <label class="setting-label">Avatar</label>
+        <div class="avatar-type-row">
+          <label class="radio-label"><input type="radio" name="avatarType" value="upload" class="radio-input" checked><span>Upload</span></label>
+          <label class="radio-label"><input type="radio" name="avatarType" value="initials" class="radio-input"><span>Initials</span></label>
+          <label class="radio-label"><input type="radio" name="avatarType" value="url" class="radio-input"><span>URL</span></label>
+        </div>
+        <div class="avatar-colors" id="avatarColors">
+          <button class="avatar-color-btn active" data-color="#89b4fa" style="background:#89b4fa"></button>
+          <button class="avatar-color-btn" data-color="#a6e3a1" style="background:#a6e3a1"></button>
+          <button class="avatar-color-btn" data-color="#f9e2af" style="background:#f9e2af"></button>
+          <button class="avatar-color-btn" data-color="#f38ba8" style="background:#f38ba8"></button>
+          <button class="avatar-color-btn" data-color="#cba6f7" style="background:#cba6f7"></button>
+          <button class="avatar-color-btn" data-color="#94e2d5" style="background:#94e2d5"></button>
+          <button class="avatar-color-btn" data-color="#fab387" style="background:#fab387"></button>
+          <button class="avatar-color-btn" data-color="#74c7ec" style="background:#74c7ec"></button>
+        </div>
+        <div class="avatar-upload-row hidden" id="avatarUploadRow">
+          <input type="file" id="settingsAvatarFile" accept="image/*" class="hidden">
+          <button class="btn-secondary btn-sm" id="settingsAvatarUploadBtn">
+            <i data-lucide="upload"></i>
+            <span>Choose Image</span>
+          </button>
+          <span class="avatar-upload-name" id="avatarUploadName"></span>
+        </div>
+        <input type="text" id="settingsAvatarUrl" class="setting-input hidden" placeholder="https://example.com/avatar.png">
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label" for="settingsTheme">Theme</label>
+        <select class="setting-select" id="settingsTheme">
+          <option value="catppuccin">Catppuccin</option>
+          <option value="dracula">Dracula</option>
+          <option value="nord">Nord</option>
+        </select>
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label">Storage Backend</label>
+        <div class="radio-group" id="settingsStorageType">
+          <label class="radio-label">
+            <input type="radio" name="settingsStorage" value="local" class="radio-input">
+            <span>Local Storage</span>
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="settingsStorage" value="github" class="radio-input">
+            <span>GitHub Repository</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="github-settings hidden" id="settingsGithub">
+        <div class="setting-group">
+          <label class="setting-label" for="settingsGithubToken">GitHub Personal Access Token</label>
+          <input type="password" id="settingsGithubToken" class="setting-input" placeholder="ghp_...">
+          <p class="setting-hint">Create a token with <strong>repo</strong> scope at <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">github.com/settings/tokens</a></p>
+          <span class="server-field-hint hidden" id="serverTokenHint">Managed by server config</span>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label" for="settingsGithubRepo">Repository</label>
+          <input type="text" id="settingsGithubRepo" class="setting-input" placeholder="owner/repo-name">
+          <span class="server-field-hint hidden" id="serverRepoHint">Managed by server config</span>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label" for="settingsGithubBranch">Branch</label>
+          <input type="text" id="settingsGithubBranch" class="setting-input" placeholder="main">
+          <span class="server-field-hint hidden" id="serverBranchHint">Managed by server config</span>
+        </div>
+        <button class="btn-secondary btn-sm" id="settingsValidateGithub">
+          <i data-lucide="check-circle"></i>
+          <span>Validate Connection</span>
+        </button>
+        <span class="github-status" id="githubStatus"></span>
+      </div>
+
+      <div class="setting-group">
+        <label class="setting-label">Data</label>
+        <div class="data-actions">
+          <button class="btn-secondary" id="settingsExportBtn">
+            <i data-lucide="download"></i>
+            <span>Export</span>
+          </button>
+          <button class="btn-secondary" id="settingsImportBtn">
+            <i data-lucide="upload"></i>
+            <span>Import</span>
+          </button>
+          <input type="file" id="settingsImportFile" accept=".json,.csv" class="hidden">
+        </div>
+        <div class="data-actions" style="margin-top:4px">
+          <button class="btn-secondary" id="settingsImportRaindropBtn">
+            <i data-lucide="file-spreadsheet"></i>
+            <span>Import from Raindrop (CSV)</span>
+          </button>
+        </div>
+        <div class="data-actions hidden" style="margin-top:8px" id="settingsSyncActions">
+          <button class="btn-secondary" id="settingsPushBtn">
+            <i data-lucide="cloud-upload"></i>
+            <span>Push to GitHub</span>
+          </button>
+          <button class="btn-secondary" id="settingsPullBtn">
+            <i data-lucide="cloud-download"></i>
+            <span>Pull from GitHub</span>
+          </button>
+        </div>
+        <span class="sync-status" id="syncStatus">Last synced: Never</span>
+      </div>
+
+      <div class="danger-zone">
+        <h3 class="danger-zone-title">Danger Zone</h3>
+        <p class="setting-hint">Permanently delete all links and collections.<br>This cannot be undone.</p>
+        <button class="btn-secondary btn-danger-outline" id="settingsWipeBtn" style="margin-top:10px">Delete All Data</button>
+        <div class="danger-confirm hidden" id="settingsWipeConfirm">
+          <p class="setting-hint">Type <strong>DELETE</strong> to confirm:</p>
+          <input type="text" id="settingsWipeInput" class="setting-input" placeholder="DELETE" autocomplete="off">
+          <button class="btn-primary btn-danger-filled" id="settingsWipeConfirmBtn" disabled>I understand, delete everything</button>
+        </div>
+      </div>
+
+      <div class="settings-footer">
+        <p class="settings-credit">LinkHive by <strong id="settingsAuthor">Morten Johansen</strong></p>
+        <div class="settings-links">
+          <a href="https://johansen.foo" target="_blank" rel="noopener">johansen.foo</a>
+          <span class="settings-sep">&middot;</span>
+          <a href="https://github.com/mojoaar/linkhive" target="_blank" rel="noopener">github.com/mojoaar/linkhive</a>
+        </div>
+        <span class="settings-version" id="settingsVersion"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Link Modal -->
+<div class="modal-overlay hidden" id="linkModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="linkModalTitle">Add Link</h2>
+      <button class="btn-icon modal-close" id="linkModalClose" aria-label="Close">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" for="linkUrl">URL</label>
+        <input type="url" id="linkUrl" class="form-input" placeholder="https://example.com" autocomplete="url">
+        <span class="form-error hidden" id="linkUrlError">Please enter a valid URL</span>
+      </div>
+
+      <div class="url-preview hidden" id="urlPreview">
+        <img class="url-preview-favicon" id="urlPreviewFavicon" src="" alt="" width="24" height="24" onerror="this.style.display='none'">
+        <div class="url-preview-info">
+          <div class="url-preview-title" id="urlPreviewTitle"></div>
+          <div class="url-preview-domain" id="urlPreviewDomain"></div>
+          <div class="url-preview-desc" id="urlPreviewDesc"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="linkTitle">Title</label>
+        <input type="text" id="linkTitle" class="form-input" placeholder="Page title">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="linkDesc">Description</label>
+        <textarea id="linkDesc" class="form-textarea" placeholder="Short description (optional)" rows="2"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="linkCollection">Collection</label>
+        <select class="form-select" id="linkCollection"></select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Tags</label>
+        <div class="tag-input-wrapper" id="linkTagWrapper">
+          <div class="tag-input-tags" id="linkTagTags"></div>
+          <input type="text" class="tag-input-field" id="linkTagInput" placeholder="Add tag..." autocomplete="off">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="linkModalCancel">Cancel</button>
+      <button class="btn-primary" id="linkModalSave">Save Link</button>
+    </div>
+    <input type="hidden" id="linkEditId" value="">
+  </div>
+</div>
+
+<!-- Collection Modal -->
+<div class="modal-overlay hidden" id="collectionModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="collectionModalTitle">New Collection</h2>
+      <button class="btn-icon modal-close" id="collectionModalClose" aria-label="Close">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" for="collectionName">Name</label>
+        <input type="text" id="collectionName" class="form-input" placeholder="e.g. Work, Personal, Reading List">
+        <span class="form-error hidden" id="collectionNameError">Name is required</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Icon</label>
+        <input type="text" class="form-input collection-icon-search" id="collectionIconSearch" placeholder="Search icons..." autocomplete="off">
+        <div class="collection-icon-grid" id="collectionIconGrid"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Color</label>
+        <div class="collection-color-grid" id="collectionColorGrid"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="collectionModalCancel">Cancel</button>
+      <button class="btn-primary" id="collectionModalSave">Save</button>
+    </div>
+    <input type="hidden" id="collectionEditId" value="">
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay hidden" id="confirmModal">
+  <div class="modal">
+    <div class="confirm-body">
+      <i data-lucide="alert-triangle" class="confirm-icon" style="width:36px;height:36px"></i>
+      <h3 class="confirm-title" id="confirmTitle">Are you sure?</h3>
+      <p class="confirm-message" id="confirmMessage">This action cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="confirmCancel">Cancel</button>
+      <button class="btn-primary btn-danger-filled" id="confirmYes">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TOAST CONTAINER ========== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ========== SCRIPTS ========== -->
+<script src="js/config.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/configStore.js"></script>
+<script src="js/utils/dom.js"></script>
+<script src="js/utils/github.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/themes.js"></script>
+<script src="js/linkStore.js"></script>
+<script src="js/ui/forms.js"></script>
+<script src="js/ui/modals.js"></script>
+<script src="js/ui/sidebar.js"></script>
+<script src="js/ui/linkGrid.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
