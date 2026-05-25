@@ -117,5 +117,7 @@ LinkHive.COLLECTION_ICONS = [
   'shapes', 'minus-circle', 'x-circle',
   'shield-check', 'shield-alert', 'shield-close', 'unlock',
   'users', 'users-round', 'user-check', 'user-x', 'user-cog',
-  'thumbs-up', 'thumbs-down', 'message-square', 'share-2'
+  'thumbs-up', 'thumbs-down', 'message-square', 'share-2',
+  'flask-conical', 'flask-conical-off', 'flask-round',
+  'pickaxe', 'brick-wall-fire', 'brick-wall-shield'
 ];
