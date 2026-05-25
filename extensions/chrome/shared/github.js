@@ -66,6 +66,8 @@ LinkHiveExt._getFile = function (token, owner, repo, branch, path) {
     xhr.open('GET', LinkHiveExt._apiUrl(owner, repo, path) + '?ref=' + branch, true);
     xhr.setRequestHeader('Authorization', 'token ' + token);
     xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+    xhr.timeout = 30000;
+    xhr.ontimeout = function () { reject(new Error('Request timed out')); };
     xhr.onload = function () {
       if (xhr.status === 404) { resolve(null); return; }
       if (xhr.status !== 200) { reject(new Error('GitHub API error: ' + xhr.status)); return; }
@@ -101,6 +103,8 @@ LinkHiveExt._putFile = function (token, owner, repo, branch, path, content, sha)
     xhr.setRequestHeader('Authorization', 'token ' + token);
     xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
     xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.timeout = 30000;
+    xhr.ontimeout = function () { reject(new Error('Request timed out')); };
     xhr.onload = function () {
       if (xhr.status !== 200 && xhr.status !== 201) { reject(new Error('GitHub API error: ' + xhr.status)); return; }
       try { resolve(JSON.parse(xhr.responseText)); } catch (e) { reject(e); }
