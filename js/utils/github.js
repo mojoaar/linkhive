@@ -84,6 +84,19 @@ LinkHive.GitHubClient = (function () {
       headers: self._headers(),
       body: JSON.stringify(body)
     }).then(function (res) {
+      if (res.status === 409 && sha) {
+        return self.getFile(path).then(function (fresh) {
+          body.sha = fresh ? fresh.sha : undefined;
+          return fetch(self._apiUrl(path), {
+            method: 'PUT',
+            headers: self._headers(),
+            body: JSON.stringify(body)
+          }).then(function (r) {
+            if (!r.ok) throw new Error('GitHub API error: ' + r.status);
+            return r.json();
+          });
+        });
+      }
       if (!res.ok) throw new Error('GitHub API error: ' + res.status);
       return res.json();
     });

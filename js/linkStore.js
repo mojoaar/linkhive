@@ -161,6 +161,12 @@ LinkHive.LinkStore = (function () {
     var idx = _links.findIndex(function (l) { return l.id === id; });
     if (idx === -1) return Promise.reject(new Error('Link not found'));
     if (updates.collectionId) {
+      var oldCid = _links[idx].collectionId || '__none__';
+      var newCid = updates.collectionId || '__none__';
+      if (oldCid !== newCid) {
+        _linkCounts[oldCid] = Math.max(0, (_linkCounts[oldCid] || 1) - 1);
+        _linkCounts[newCid] = (_linkCounts[newCid] || 0) + 1;
+      }
       var collection = _collections.find(function (c) { return c.id === updates.collectionId; });
       if (collection) updates.collectionSlug = collection.slug;
     }

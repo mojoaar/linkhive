@@ -156,6 +156,11 @@ If you find LinkHive useful, consider [buying me a coffee](https://buymeacoffee.
 
 ## Changelog
 
+### [v0.1.4](https://github.com/mojoaar/linkhive/releases/tag/v0.1.4) — Bugfix
+
+- Fix 409 SHA conflict during GitHub sync — retries once with fresh SHA when file was modified concurrently
+- Fix collection link counts not updating after bulk-move — cache now decrements/increments on collection change
+
 ### [v0.1.3](https://github.com/mojoaar/linkhive/releases/tag/v0.1.3) — Bugfix
 
 - Fix bulk move ("Move to..." dropdown) not triggering auto-sync to GitHub. All mutation paths now covered.
