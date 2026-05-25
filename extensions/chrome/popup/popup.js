@@ -78,10 +78,18 @@ function initAddView() {
   });
 
   var apiUrl = LinkHiveExt._apiUrl(_owner, _repo, 'data/collections.json') + '?ref=' + _branch;
-  $('debugInfo').textContent = 'Fetching: ' + apiUrl;
+  $('debugInfo').textContent = 'Checking: ' + _owner + '/' + _repo;
+
+  fetch(apiUrl, { headers: { 'Authorization': 'token ' + _token } }).then(function (r) {
+    return r.text().then(function (body) {
+      $('debugInfo').textContent = 'collections.json HTTP ' + r.status + ' (' + body.slice(0, 60) + '...)';
+    });
+  }).catch(function (e) {
+    $('debugInfo').textContent = 'collections.json fetch error: ' + e.message;
+  });
 
   LinkHiveExt.fetchCollections(_token, _owner, _repo, _branch).then(function (cols) {
-    $('debugInfo').textContent = 'Collections found: ' + (cols ? cols.length : 0);
+    $('debugInfo').textContent = ($('debugInfo').textContent || '') + ' | parsed: ' + (cols ? cols.length : 0);
     _collections = cols;
     var sel = $('linkCollection');
     sel.innerHTML = '<option value="">No collection</option>';
