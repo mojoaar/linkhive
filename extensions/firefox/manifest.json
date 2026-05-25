@@ -31,23 +31,6 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-  "theme_icons": [
-    {
-      "light": "icons/icon-16.png",
-      "dark": "icons-dark/icon-16.png",
-      "size": 16
-    },
-    {
-      "light": "icons/icon-48.png",
-      "dark": "icons-dark/icon-48.png",
-      "size": 48
-    },
-    {
-      "light": "icons/icon-128.png",
-      "dark": "icons-dark/icon-128.png",
-      "size": 128
-    }
-  ],
   "browser_specific_settings": {
     "gecko": {
       "id": "linkhive@mojoaar",
