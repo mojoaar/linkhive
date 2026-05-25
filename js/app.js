@@ -261,11 +261,13 @@ LinkHive.Sync = (function () {
       LinkHive.Toast.show('Invalid repo format. Use owner/repo-name.', 'error');
       return Promise.reject(new Error('invalid repo'));
     }
+    if (_syncing) { _syncPending = true; return Promise.resolve(); }
     LinkHive.Toast.show('Syncing to GitHub...', '');
     return _doPush();
   }
 
   function _doPush() {
+    if (_syncing) { _syncPending = true; return Promise.resolve(); }
     _syncing = true;
     _syncPending = false;
     return _pushToGithub().then(function () {
