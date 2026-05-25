@@ -97,18 +97,11 @@ LinkHiveExt._getFile = function (token, owner, repo, branch, path) {
       if (xhr.status === 404) { resolve(null); return; }
       if (xhr.status !== 200) { reject(new Error('GitHub API error: ' + xhr.status)); return; }
       try {
-        var data = JSON.parse(xhr.responseText);
-        var raw = atob(data.content.replace(/\s/g, ''));
-        var decoded = '';
-        var i = 0;
-        while (i < raw.length) {
-          var c = raw.charCodeAt(i);
-          if (c < 128) { decoded += String.fromCharCode(c); i++; }
-          else if (c < 224) { decoded += String.fromCharCode(((c & 31) << 6) | (raw.charCodeAt(i+1) & 63)); i += 2; }
-          else if (c < 240) { decoded += String.fromCharCode(((c & 15) << 12) | ((raw.charCodeAt(i+1) & 63) << 6) | (raw.charCodeAt(i+2) & 63)); i += 3; }
-          else { var cp = ((c & 7) << 18) | ((raw.charCodeAt(i+1) & 63) << 12) | ((raw.charCodeAt(i+2) & 63) << 6) | (raw.charCodeAt(i+3) & 63); decoded += String.fromCodePoint(cp); i += 4; }
-        }
-        resolve({ path: data.path, sha: data.sha, content: JSON.parse(decoded) });
+        var d = JSON.parse(xhr.responseText);
+        var raw = atob(d.content.replace(/\s/g, ''));
+        var buf = new Uint8Array(raw.length);
+        for (var i = 0; i < raw.length; i++) { buf[i] = raw.charCodeAt(i); }
+        resolve({ path: d.path, sha: d.sha, content: JSON.parse(new TextDecoder().decode(buf)) });
       } catch (e) { reject(e); }
     };
     xhr.onerror = function () { reject(new Error('Network error')); };
@@ -118,18 +111,10 @@ LinkHiveExt._getFile = function (token, owner, repo, branch, path) {
 
 LinkHiveExt._putFile = function (token, owner, repo, branch, path, content, sha) {
   var jsonStr = JSON.stringify(content);
-  var bytes = [];
-  for (var i = 0; i < jsonStr.length; i++) {
-    var c = jsonStr.charCodeAt(i);
-    if (c < 128) { bytes.push(c); }
-    else if (c < 2048) { bytes.push(192 | (c >> 6)); bytes.push(128 | (c & 63)); }
-    else { bytes.push(224 | (c >> 12)); bytes.push(128 | ((c >> 6) & 63)); bytes.push(128 | (c & 63)); }
-  }
+  var enc = new TextEncoder();
+  var bytes = enc.encode(jsonStr);
   var binary = '';
-  var chunk = 8192;
-  for (var j = 0; j < bytes.length; j += chunk) {
-    binary += String.fromCharCode.apply(null, bytes.slice(j, j + chunk));
-  }
+  for (var i = 0; i < bytes.length; i++) { binary += String.fromCharCode(bytes[i]); }
   var body = { message: 'Update ' + path, content: btoa(binary), branch: branch };
   if (sha) body.sha = sha;
   return new Promise(function (resolve, reject) {
