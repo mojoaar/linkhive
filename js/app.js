@@ -348,63 +348,6 @@ LinkHive.Sync = (function () {
       });
     });
   }
-      return Promise.all(pullLinks).then(function (linkArrays) {
-        var githubLinks = [];
-        linkArrays.forEach(function (arr) { if (arr) githubLinks = githubLinks.concat(arr); });
-        return getFile('data/collections.json').then(function (githubColls) {
-          // Merge with local data
-          return Promise.all([LinkHive.LinkStore.getCollections(), LinkHive.LinkStore.getLinks()]).then(function (results) {
-            var mergedColls = mergeById(results[0], githubColls || []);
-            var mergedLinks = mergeById(results[1], githubLinks);
-            // Import merged data into local store
-            var data = { version: 1, collections: mergedColls, links: mergedLinks };
-            return LinkHive.LinkStore.importData(JSON.stringify(data)).then(function () {
-              // Push merged data back to GitHub
-              var chunkSize = 250;
-              var chunks = [];
-              for (var j = 0; j < mergedLinks.length; j += chunkSize) {
-                chunks.push(mergedLinks.slice(j, j + chunkSize));
-              }
-
-              var pushCollWithRetry = function (attempts) {
-                return pushFile('data/collections.json', mergedColls).catch(function (e) {
-                  if (attempts > 0 && e.message.indexOf('409') !== -1) {
-                    return LinkHive.LinkStore.loadAll().then(function () {
-                      return LinkHive.LinkStore.getLinks().then(function (freshLinks) {
-                        mergedLinks = mergeById([] , freshLinks);
-                        var freshChunks = [];
-                        for (var j = 0; j < mergedLinks.length; j += chunkSize) {
-                          freshChunks.push(mergedLinks.slice(j, j + chunkSize));
-                        }
-                        chunks = freshChunks;
-                        return pushCollWithRetry(attempts - 1);
-                      });
-                    });
-                  }
-                  throw e;
-                });
-              };
-
-              return pushCollWithRetry(2).then(function () {
-                var chain = Promise.resolve();
-                chunks.forEach(function (chunk, idx) {
-                  chain = chain.then(function () {
-                    return pushFile('data/links-' + idx + '.json', chunk);
-                  });
-                });
-                return chain.then(function () {
-                  return pushFile('data/index.json', { chunks: chunks.length, total: mergedLinks.length, exportedAt: new Date().toISOString() });
-                });
-              });
-            }).then(function () {
-              LinkHive.LinkGrid.render();
-              LinkHive.Sidebar.update();
-            });
-          });
-        });
-      });
-    });
-  }
 
   function pullFromGithub() {
     var config = LinkHive.Config.get();
