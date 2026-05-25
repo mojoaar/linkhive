@@ -30,8 +30,19 @@ chrome.storage.sync.get(['githubToken', 'githubRepo', 'githubBranch'], function 
     _owner = _repo.split('/')[0];
     _branch = items.githubBranch || 'main';
     $('debugRepoText').textContent = _repo + ' (' + _branch + ')';
-    show('addView');
-    initAddView();
+    // Re-validate saved settings
+    LinkHiveExt._getFile(_token, _owner, _repo, _branch, 'data/collections.json').then(function (data) {
+      if (data && data.content) {
+        show('addView');
+        initAddView();
+      } else {
+        chrome.storage.sync.remove(['githubToken', 'githubRepo', 'githubBranch']);
+        show('setupView');
+      }
+    }).catch(function () {
+      chrome.storage.sync.remove(['githubToken', 'githubRepo', 'githubBranch']);
+      show('setupView');
+    });
   } else {
     show('setupView');
   }
@@ -77,17 +88,17 @@ function initAddView() {
     }
   });
 
-  var collUrl = LinkHiveExt._apiUrl(_owner, _repo, 'data/collections.json') + '?ref=' + _branch;
-  var rawUrl = 'https://raw.githubusercontent.com/' + _owner + '/' + _repo + '/' + _branch + '/data/collections.json';
-  $('debugInfo').textContent = 'Checking API...';
+  var collUrl = LinkHiveExt._apiUrl(_owner, _repo, 'data/collections.json');
+  var collUrlRef = collUrl + '?ref=' + _branch;
+  var rootUrl = LinkHiveExt._apiUrl(_owner, _repo, '');
+  $('debugInfo').textContent = 'Testing API...';
 
-  fetch(collUrl, { headers: { 'Authorization': 'token ' + _token } })
-    .then(function (r) { return r.text().then(function (b) { $('debugInfo').textContent = 'API: ' + r.status; }); })
-    .catch(function (e) { $('debugInfo').textContent = 'API error: ' + e.message; });
-
-  fetch(rawUrl, { headers: { 'Authorization': 'token ' + _token } })
-    .then(function (r) { return r.text().then(function (b) { $('debugInfo').textContent = ($('debugInfo').textContent || '') + ' RAW: ' + r.status + ' (' + b.slice(0, 30) + ')'; }); })
-    .catch(function (e) { $('debugInfo').textContent = ($('debugInfo').textContent || '') + ' RAW error: ' + e.message; });
+  fetch(rootUrl, { headers: { 'Authorization': 'token ' + _token, 'Accept': 'application/vnd.github.v3+json' } })
+    .then(function (r) { return r.json().then(function (d) { 
+      var items = Array.isArray(d) ? d.map(function(f) { return f.name; }).join(', ') : d.message;
+      $('debugInfo').textContent = 'Repo root: ' + r.status + ' -> ' + items; 
+    }); })
+    .catch(function (e) { $('debugInfo').textContent = 'root error: ' + e.message; });
 
   LinkHiveExt.fetchCollections(_token, _owner, _repo, _branch).then(function (cols) {
     $('debugInfo').textContent = ($('debugInfo').textContent || '') + ' | parsed: ' + (cols ? cols.length : 0);
