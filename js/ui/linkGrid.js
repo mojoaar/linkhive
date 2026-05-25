@@ -251,12 +251,7 @@ LinkHive.LinkGrid = (function () {
     var collectionName = collection ? collection.name : '';
     var collectionColor = collection ? collection.color : '';
 
-    var faviconHtml = '';
-    if (link.favicon) {
-      faviconHtml = '<img class="link-card-favicon" src="' + LinkHive.escapeHtml(link.favicon) + '" alt="" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=\'link-card-favicon-placeholder\'><i data-lucide=\'link\' style=\'width:12px;height:12px\'></i></div>\';window.refreshIcons&&window.refreshIcons(this.parentElement)">';
-    } else {
-      faviconHtml = '<div class="link-card-favicon-placeholder"><i data-lucide="link" style="width:12px;height:12px"></i></div>';
-    }
+    var faviconHtml = '<div class="link-card-favicon-placeholder"><i data-lucide="link" style="width:12px;height:12px"></i></div>';
 
     var tagsHtml = '';
     if (link.tags && link.tags.length > 0) {

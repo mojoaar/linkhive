@@ -219,12 +219,6 @@ LinkHive.Modals = (function () {
     DOM.urlPreviewTitle.textContent = data.title || '';
     DOM.urlPreviewDomain.textContent = data.domain || '';
     DOM.urlPreviewDesc.textContent = data.description || '';
-    if (data.favicon) {
-      DOM.urlPreviewFavicon.src = data.favicon;
-      DOM.urlPreviewFavicon.style.display = '';
-    } else {
-      DOM.urlPreviewFavicon.style.display = 'none';
-    }
   }
 
   function clearTags() {
@@ -691,21 +685,15 @@ LinkHive.Modals = (function () {
       var tags = getTags();
       var editId = DOM.linkEditId.value;
 
-      var favicon = '';
-      var img = DOM.urlPreviewFavicon;
-      if (img && !img.classList.contains('hidden') && img.src && img.src.indexOf('data:') === -1) {
-        favicon = img.src;
-      }
-
       if (editId) {
-        LinkHive.LinkStore.updateLink(editId, { url: url, title: title, description: desc, collectionId: collectionId, tags: tags, favicon: favicon }).then(function () {
+        LinkHive.LinkStore.updateLink(editId, { url: url, title: title, description: desc, collectionId: collectionId, tags: tags, favicon: '' }).then(function () {
           LinkHive.LinkGrid.render();
           hideLinkModal();
           LinkHive.Toast.show('Link updated', 'success');
           LinkHive.Sync.autoSync();
         });
       } else {
-        LinkHive.LinkStore.addLink(url, title, desc, collectionId, tags, favicon).then(function () {
+        LinkHive.LinkStore.addLink(url, title, desc, collectionId, tags, '').then(function () {
           LinkHive.LinkGrid.render();
           hideLinkModal();
           LinkHive.Toast.show('Link saved', 'success');
@@ -722,7 +710,7 @@ LinkHive.Modals = (function () {
         if (!DOM.linkEditId.value) {
           var url = LinkHive.Forms.normalizeUrl(rawUrl);
           var domain = LinkHive.getDomain(url);
-          showUrlPreview({ url: url, domain: domain, title: domain, description: '', favicon: '' });
+          showUrlPreview({ url: url, domain: domain, title: domain, description: '' });
           LinkHive.Forms.parseUrl(url).then(function (data) {
             if (data) {
               showUrlPreview(data);

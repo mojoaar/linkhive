@@ -767,15 +767,6 @@
   margin-bottom: 8px;
 }
 
-.link-card-favicon {
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  flex-shrink: 0;
-  margin-top: 1px;
-  object-fit: contain;
-}
-
 .link-card-favicon-placeholder {
   width: 20px;
   height: 20px;
@@ -1008,10 +999,6 @@
 
 .link-grid.list-view .link-card-footer {
   display: none;
-}
-
-.link-grid.list-view .link-card-favicon {
-  margin-top: 2px;
 }
 
 .link-grid.list-view .link-card-favicon-placeholder {
@@ -1644,15 +1631,6 @@
   padding: 12px;
   background: var(--bg-elevated);
   border-radius: var(--radius);
-}
-
-.url-preview-favicon {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  object-fit: contain;
-  flex-shrink: 0;
-  margin-top: 2px;
 }
 
 .url-preview-info {

@@ -11,18 +11,10 @@ LinkHive.Forms = (function () {
     try { new URL(cleanUrl); } catch (e) { return Promise.resolve(null); }
 
     var domain = LinkHive.getDomain(cleanUrl);
-    var faviconUrl = '';
 
     return fetchViaProxy(cleanUrl).then(function (html) {
       if (!html) {
-        faviconUrl = cleanUrl.replace(/\/$/, '') + '/favicon.ico';
-        return {
-          url: cleanUrl,
-          domain: domain,
-          title: domain,
-          description: '',
-          favicon: faviconUrl
-        };
+        return { url: cleanUrl, domain: domain, title: domain, description: '' };
       }
 
       var title = extractMeta(html, 'og:title') ||
@@ -35,26 +27,9 @@ LinkHive.Forms = (function () {
                         extractMeta(html, 'description') ||
                         '';
 
-      var pageFavicon = extractFavicon(html, cleanUrl);
-      if (pageFavicon) {
-        faviconUrl = pageFavicon;
-      }
-
-      return {
-        url: cleanUrl,
-        domain: domain,
-        title: title,
-        description: description,
-        favicon: faviconUrl
-      };
+      return { url: cleanUrl, domain: domain, title: title, description: description };
     }).catch(function () {
-      return {
-        url: cleanUrl,
-        domain: domain,
-        title: domain,
-        description: '',
-        favicon: ''
-      };
+      return { url: cleanUrl, domain: domain, title: domain, description: '' };
     });
   }
 
@@ -109,20 +84,6 @@ LinkHive.Forms = (function () {
 
     var match = html.match(regex1) || html.match(regex2) || html.match(regex3) || html.match(regex4);
     return match ? decodeEntities(match[1]).trim() : '';
-  }
-
-  function extractFavicon(html, baseUrl) {
-    var match = html.match(/<link[^>]+rel=["'](?:shortcut )?icon["'][^>]+href=["']([^"\']+)["']/i) ||
-                html.match(/<link[^>]+href=["']([^"\']+)["'][^>]+rel=["'](?:shortcut )?icon["']/i);
-    if (match) {
-      var href = match[1].trim();
-      try {
-        return new URL(href, baseUrl).href;
-      } catch (e) {
-        return '';
-      }
-    }
-    return '';
   }
 
   function isValidUrl(str) {

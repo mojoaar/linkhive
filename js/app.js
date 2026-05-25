@@ -138,7 +138,7 @@ LinkHive.App = (function () {
       linkEditId: qs('#linkEditId'),
       linkUrlError: qs('#linkUrlError'),
       urlPreview: qs('#urlPreview'),
-      urlPreviewFavicon: qs('#urlPreviewFavicon'),
+
       urlPreviewTitle: qs('#urlPreviewTitle'),
       urlPreviewDomain: qs('#urlPreviewDomain'),
       urlPreviewDesc: qs('#urlPreviewDesc'),
