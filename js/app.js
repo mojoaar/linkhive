@@ -378,24 +378,6 @@ LinkHive.Sync = (function () {
     }, 2000);
   }
 
-  function _doPush() {
-    _syncing = true;
-    _syncPending = false;
-    return pushToGithub().then(function () {
-      _syncing = false;
-      if (_syncPending) {
-        _syncPending = false;
-        _doPush().catch(function () {});
-      }
-    }).catch(function () {
-      _syncing = false;
-      if (_syncPending) {
-        _syncPending = false;
-        _doPush().catch(function () {});
-      }
-    });
-  }
-
   return { pushToGithub: pushToGithub, pullFromGithub: pullFromGithub, autoSync: autoSync };
 })();
 
