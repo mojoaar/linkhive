@@ -171,6 +171,19 @@ If you find LinkHive useful, consider [buying me a coffee](https://buymeacoffee.
 
 ## Changelog
 
+### [v0.2.0](https://github.com/mojoaar/linkhive/releases/tag/v0.2.0) — Browser Extensions
+
+- Add Chrome extension (MV3) with settings form (token, repo, branch)
+- Add link saving with collection and tag support from the popup
+- Add existing link detection — pre-fills form with current data, button changes to "Update"
+- Add dark/light mode icon switching (blue cloud on light, white cloud on dark)
+- Add pull-before-push sync — web app now merges extension-added links on sync
+- Add host_permissions for GitHub API access in Chrome MV3
+- Fix GitHub sync to merge remote data instead of overwriting
+- Remove Firefox extension (Chrome-only for now)
+- Use downloaded cloud icon for toolbar button
+- Various stability fixes for XHR calls and timeout handling
+
 ### [v0.1.6](https://github.com/mojoaar/linkhive/releases/tag/v0.1.6) — Bugfix
 
 - Fix syntax error in `github.js` blocking sync — remove orphaned duplicate code from 409 retry edit
