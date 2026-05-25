@@ -62,7 +62,7 @@ LinkHiveExt._apiUrl = function (owner, repo, path) {
 
 LinkHiveExt._getFile = function (token, owner, repo, branch, path) {
   return fetch(LinkHiveExt._apiUrl(owner, repo, path) + '?ref=' + branch, {
-    headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
+    headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }
   }).then(function (res) {
     if (res.status === 404) return null;
     if (!res.ok) throw new Error('GitHub API error: ' + res.status);
@@ -90,7 +90,7 @@ LinkHiveExt._putFile = function (token, owner, repo, branch, path, content, sha)
   var body = { message: 'Update ' + path, content: btoa(binary), branch: branch };
   if (sha) body.sha = sha;
   return fetch(LinkHiveExt._apiUrl(owner, repo, path), {
-    method: 'PUT', headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+    method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   }).then(function (res) {
     if (!res.ok) throw new Error('GitHub API error: ' + res.status);
