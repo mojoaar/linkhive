@@ -61,15 +61,21 @@ LinkHiveExt._apiUrl = function (owner, repo, path) {
 };
 
 LinkHiveExt._getFile = function (token, owner, repo, branch, path) {
-  return fetch(LinkHiveExt._apiUrl(owner, repo, path) + '?ref=' + branch, {
-    headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }
-  }).then(function (res) {
-    if (res.status === 404) return null;
-    if (!res.ok) throw new Error('GitHub API error: ' + res.status);
-    return res.json();
-  }).then(function (data) {
-    if (!data) return null;
-    return { path: data.path, sha: data.sha, content: JSON.parse(atob(data.content.replace(/\s/g, ''))) };
+  return new Promise(function (resolve, reject) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', LinkHiveExt._apiUrl(owner, repo, path) + '?ref=' + branch, true);
+    xhr.setRequestHeader('Authorization', 'token ' + token);
+    xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+    xhr.onload = function () {
+      if (xhr.status === 404) { resolve(null); return; }
+      if (xhr.status !== 200) { reject(new Error('GitHub API error: ' + xhr.status)); return; }
+      try {
+        var data = JSON.parse(xhr.responseText);
+        resolve({ path: data.path, sha: data.sha, content: JSON.parse(atob(data.content.replace(/\s/g, ''))) });
+      } catch (e) { reject(e); }
+    };
+    xhr.onerror = function () { reject(new Error('Network error')); };
+    xhr.send();
   });
 };
 
@@ -89,11 +95,17 @@ LinkHiveExt._putFile = function (token, owner, repo, branch, path, content, sha)
   }
   var body = { message: 'Update ' + path, content: btoa(binary), branch: branch };
   if (sha) body.sha = sha;
-  return fetch(LinkHiveExt._apiUrl(owner, repo, path), {
-    method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  }).then(function (res) {
-    if (!res.ok) throw new Error('GitHub API error: ' + res.status);
-    return res.json();
+  return new Promise(function (resolve, reject) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('PUT', LinkHiveExt._apiUrl(owner, repo, path), true);
+    xhr.setRequestHeader('Authorization', 'token ' + token);
+    xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function () {
+      if (xhr.status !== 200 && xhr.status !== 201) { reject(new Error('GitHub API error: ' + xhr.status)); return; }
+      try { resolve(JSON.parse(xhr.responseText)); } catch (e) { reject(e); }
+    };
+    xhr.onerror = function () { reject(new Error('Network error')); };
+    xhr.send(JSON.stringify(body));
   });
 };
