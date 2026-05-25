@@ -297,14 +297,16 @@ LinkHive.Sync = (function () {
 
     var pushFile = function (path, data) {
       return client.getFile(path).catch(function () { return null; }).then(function (existing) {
-        return client.putFile(path, data, existing ? existing.sha : undefined);
+        return client.putFile(path, data, existing ? existing.sha : undefined).catch(function (e) {
+          throw new Error((e.message || 'error') + ' (' + path + ')');
+        });
       });
     };
 
     return getAll().then(function (results) {
       var collections = results[0];
       var links = results[1];
-      var chunkSize = 500;
+      var chunkSize = 250;
       var chunks = [];
       for (var i = 0; i < links.length; i += chunkSize) {
         chunks.push(links.slice(i, i + chunkSize));
