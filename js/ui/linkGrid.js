@@ -116,6 +116,7 @@ LinkHive.LinkGrid = (function () {
       LinkHive.LinkGrid.render();
       LinkHive.Sidebar.update();
       LinkHive.Toast.show('Moved ' + count + ' link' + (count !== 1 ? 's' : ''), 'success');
+      LinkHive.Sync.autoSync();
     }).catch(function () {
       LinkHive.Toast.show('Failed to move some links', 'error');
     });

@@ -156,6 +156,10 @@ If you find LinkHive useful, consider [buying me a coffee](https://buymeacoffee.
 
 ## Changelog
 
+### [v0.1.3](https://github.com/mojoaar/linkhive/releases/tag/v0.1.3) — Bugfix
+
+- Fix bulk move ("Move to..." dropdown) not triggering auto-sync to GitHub. All mutation paths now covered.
+
 ### [v0.1.2](https://github.com/mojoaar/linkhive/releases/tag/v0.1.2) — Bugfix
 
 - Fix collections missing after GitHub pull during onboarding. `importData()` now holds references to all IDBRequest objects to prevent garbage collection from aborting writes before the transaction commits.
