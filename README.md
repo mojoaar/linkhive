@@ -12,13 +12,14 @@
 - **Client-side only** — no server, no database, no signup. Everything stays in your browser
 - **Offline-first** — full PWA with service worker caching. Works without internet
 - **GitHub sync** — back up your links to a private GitHub repo (PAT auth)
-- **Chrome extension** — save links from any tab via `Ctrl+Shift+L` / `Cmd+Shift+L` with collection support
+- **Chrome extension** — save links from any tab via `Ctrl+Shift+L` / `Cmd+Shift+L`; auto-captures page title, description, and collection
+- **Dead link checker** — scans all links for dead domains, moves them to a "Dead Links" collection
 - **Collections** — organize links with custom icons, colors, and names
 - **Tags** — full tag system with search and filtering
 - **Rich import** — import from Raindrop.io CSV exports (auto-creates collections)
 - **Dark & light themes** — Catppuccin (Macchiato, Latte, Frappé, Mocha), Dracula, GitHub, Nord, One Dark, Tokyo Night
 - **Server config** — deploy with `config.json` for pre-configured GitHub sync
-- **Responsive** — works great on desktop, tablet, and mobile
+- **Responsive** — works great on desktop, tablet, and mobile; collapsible sidebar on desktop
 - **Zero dependencies** — pure HTML, CSS, and JavaScript. No npm, no build step
 
 ## Screenshots
@@ -171,6 +172,19 @@ If you find LinkHive useful, consider [buying me a coffee](https://buymeacoffee.
 ---
 
 ## Changelog
+
+### v0.2.1 — Fixes & Improvements
+
+**Web app**
+- Add dead link checker in Settings → Tools — checks all links via `fetch HEAD` (no CORS proxy needed), creates a "Dead Links" collection (skull icon) and moves dead domains there; preserves original collection in a `deadFrom` field; skips links already in Dead Links on re-run; cancellable with live progress
+- Add collapsible desktop sidebar — hamburger toggle collapses/expands with a smooth CSS transition; state persisted to `localStorage` so preference survives reloads; mobile overlay behaviour unchanged
+- Fix list view dead space — bottom row (tags + meta) now only renders when it has content; eliminates blank gap on cards with no tags or date
+- Fix favicon white-corner artifact in WebKit/Orion — removed `rx="14"` rounded corners from `favicon.svg`; regenerated `favicon-32.png`, `favicon-192.png`, `favicon-512.png` with fully solid `#1e1e2e` corners; SW cache bumped to `v5`
+- Remove favicon fetching from link cards — all cards now show the Lucide `link` icon placeholder; eliminates failed network requests and inconsistent rendering
+
+**Chrome extension**
+- Fix UTF-8 encoding — rewrote `_getFile`/`_putFile` using `fetch` + `TextDecoder('utf-8')` instead of XHR, eliminating mojibake in the popup when titles or descriptions contained non-ASCII characters
+- Add automatic page description capture — uses `chrome.scripting.executeScript` to read `meta[name="description"]`, `og:description`, or `twitter:description` directly from the page DOM; pre-fills the description field when saving a new link; requires new `scripting` permission in manifest
 
 ### [v0.2.0](https://github.com/mojoaar/linkhive/releases/tag/v0.2.0) — Browser Extensions
 

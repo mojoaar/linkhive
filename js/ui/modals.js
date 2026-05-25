@@ -4,6 +4,9 @@ LinkHive.Modals = (function () {
 
   var DOM = {};
 
+  var _deadCheckRunning = false;
+  var _deadCheckCancelled = false;
+
   function init(dom) {
     DOM = dom;
     bindSettingsEvents();
@@ -91,6 +94,12 @@ LinkHive.Modals = (function () {
     resetWipeConfirm();
     DOM.githubStatus.textContent = '';
     DOM.githubStatus.className = 'github-status';
+
+    if (!_deadCheckRunning) {
+      DOM.deadLinkStatus.textContent = '';
+      DOM.settingsCancelDeadLinksBtn.style.display = 'none';
+      DOM.settingsCheckDeadLinksBtn.disabled = false;
+    }
 
     show(DOM.settingsModal);
   }
@@ -489,6 +498,116 @@ LinkHive.Modals = (function () {
     return active ? active.dataset.color : LinkHive.COLLECTION_COLORS[0];
   }
 
+  function checkDeadLinks() {
+    if (_deadCheckRunning) return;
+    _deadCheckRunning = true;
+    _deadCheckCancelled = false;
+
+    var BATCH_SIZE = 10;
+    var TIMEOUT_MS = 5000;
+
+    // Find existing Dead Links collection
+    var collections = LinkHive.LinkStore.getCollections();
+    var deadCol = collections.find(function (c) { return c.name === 'Dead Links'; });
+    var deadColId = deadCol ? deadCol.id : null;
+
+    // Exclude links already in Dead Links collection; skip non-HTTPS (mixed content false positives)
+    var allLinks = LinkHive.LinkStore.getLinks();
+    var linksToCheck = allLinks.filter(function (l) {
+      return l.collectionId !== deadColId && l.url && l.url.indexOf('https://') === 0;
+    });
+
+    var total = linksToCheck.length;
+    var checked = 0;
+    var deadLinks = [];
+
+    DOM.settingsCancelDeadLinksBtn.style.display = '';
+    DOM.settingsCheckDeadLinksBtn.disabled = true;
+    DOM.deadLinkStatus.textContent = 'Checking 0 / ' + total + '…';
+
+    function checkOne(link) {
+      return new Promise(function (resolve) {
+        var controller = new AbortController();
+        var timer = setTimeout(function () {
+          controller.abort();
+          resolve({ link: link, alive: true }); // timeout = assume alive (server slow, not gone)
+        }, TIMEOUT_MS);
+
+        fetch(link.url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal })
+          .then(function () {
+            clearTimeout(timer);
+            resolve({ link: link, alive: true });
+          })
+          .catch(function (err) {
+            clearTimeout(timer);
+            // AbortError = our own timeout = treat as alive
+            // TypeError = network failure = dead domain
+            resolve({ link: link, alive: err && err.name === 'AbortError' });
+          });
+      });
+    }
+
+    function processBatch(batch) {
+      return Promise.all(batch.map(checkOne)).then(function (results) {
+        results.forEach(function (r) {
+          checked++;
+          if (!r.alive) deadLinks.push(r.link);
+        });
+        DOM.deadLinkStatus.textContent = 'Checking ' + checked + ' / ' + total + '…';
+      });
+    }
+
+    // Split into batches
+    var batches = [];
+    for (var i = 0; i < linksToCheck.length; i += BATCH_SIZE) {
+      batches.push(linksToCheck.slice(i, i + BATCH_SIZE));
+    }
+
+    function runBatches(idx) {
+      if (_deadCheckCancelled || idx >= batches.length) return Promise.resolve();
+      return processBatch(batches[idx]).then(function () { return runBatches(idx + 1); });
+    }
+
+    runBatches(0).then(function () {
+      _deadCheckRunning = false;
+      DOM.settingsCancelDeadLinksBtn.style.display = 'none';
+      DOM.settingsCheckDeadLinksBtn.disabled = false;
+
+      var wasCancelled = _deadCheckCancelled;
+      _deadCheckCancelled = false;
+
+      if (deadLinks.length === 0) {
+        DOM.deadLinkStatus.textContent = wasCancelled
+          ? 'Cancelled — no dead links found.'
+          : 'All ' + checked + ' links alive.';
+        return;
+      }
+
+      // Find or create Dead Links collection, then move dead links into it
+      var cols = LinkHive.LinkStore.getCollections();
+      var existing = cols.find(function (c) { return c.name === 'Dead Links'; });
+      var colPromise = existing
+        ? Promise.resolve(existing)
+        : LinkHive.LinkStore.addCollection('Dead Links', 'skull', '#f38ba8');
+
+      colPromise.then(function (col) {
+        var updates = deadLinks.map(function (link) {
+          return LinkHive.LinkStore.updateLink(link.id, {
+            collectionId: col.id,
+            deadFrom: link.collectionId || null
+          });
+        });
+        return Promise.all(updates);
+      }).then(function () {
+        var n = deadLinks.length;
+        var noun = n === 1 ? 'link' : 'links';
+        DOM.deadLinkStatus.textContent = 'Found ' + n + ' dead ' + noun + (wasCancelled ? ' (partial scan)' : '') + ' — moved to Dead Links.';
+        LinkHive.Toast.show('Moved ' + n + ' dead ' + noun + ' to Dead Links');
+        LinkHive.Sync.autoSync();
+      });
+    });
+  }
+
   function bindSettingsEvents() {
     DOM.settingsClose.addEventListener('click', hideSettings);
     DOM.settingsModal.addEventListener('click', function (e) {
@@ -824,6 +943,14 @@ LinkHive.Modals = (function () {
 
     DOM.addCollectionSidebar.addEventListener('click', function () {
       showCollectionModal();
+    });
+
+    DOM.settingsCheckDeadLinksBtn.addEventListener('click', function () {
+      checkDeadLinks();
+    });
+
+    DOM.settingsCancelDeadLinksBtn.addEventListener('click', function () {
+      _deadCheckCancelled = true;
     });
 
     document.addEventListener('keydown', function (e) {

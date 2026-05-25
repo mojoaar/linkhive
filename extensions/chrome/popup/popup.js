@@ -86,6 +86,31 @@ function initAddView() {
       $('linkUrl').value = _tabUrl;
       $('linkTitle').value = _tabTitle;
       checkExistingLink();
+
+      // Try to read meta description directly from the page DOM
+      if (tab.id && chrome.scripting) {
+        chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: function () {
+            var selectors = [
+              'meta[name="description"]',
+              'meta[property="og:description"]',
+              'meta[name="twitter:description"]'
+            ];
+            for (var i = 0; i < selectors.length; i++) {
+              var el = document.querySelector(selectors[i]);
+              var content = el && el.getAttribute('content');
+              if (content && content.trim()) return content.trim();
+            }
+            return '';
+          }
+        }, function (results) {
+          var desc = results && results[0] && results[0].result;
+          if (desc && !$('linkDesc').value) {
+            $('linkDesc').value = desc;
+          }
+        });
+      }
     }
   });
 

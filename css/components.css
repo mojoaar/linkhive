@@ -511,6 +511,11 @@
 @media (min-width: 1024px) {
   .header {
     left: var(--sidebar-width);
+    transition: left 200ms ease;
+  }
+
+  .sidebar {
+    transition: transform 200ms ease;
   }
 
   .sidebar-panel {
@@ -525,6 +530,20 @@
 
   .app-layout {
     padding-left: var(--sidebar-width);
+    transition: padding-left 200ms ease;
+  }
+
+  /* ---- Desktop collapsed state ---- */
+  .app-layout.sidebar-collapsed {
+    padding-left: 0;
+  }
+
+  .app-layout.sidebar-collapsed .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .app-layout.sidebar-collapsed .header {
+    left: 0;
   }
 }
 

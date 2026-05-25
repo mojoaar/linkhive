@@ -384,6 +384,20 @@
         <span class="sync-status" id="syncStatus">Last synced: Never</span>
       </div>
 
+      <div class="setting-group">
+        <label class="setting-label">Tools</label>
+        <div class="data-actions">
+          <button class="btn-secondary" id="settingsCheckDeadLinksBtn">
+            <i data-lucide="skull"></i>
+            <span>Check for Dead Links</span>
+          </button>
+          <button class="btn-secondary" id="settingsCancelDeadLinksBtn" style="display:none">
+            <span>Cancel</span>
+          </button>
+        </div>
+        <span class="sync-status" id="deadLinkStatus"></span>
+      </div>
+
       <div class="danger-zone">
         <h3 class="danger-zone-title">Danger Zone</h3>
         <p class="setting-hint">Permanently delete all links and collections.<br>This cannot be undone.</p>

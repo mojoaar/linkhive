@@ -4,6 +4,25 @@ LinkHive.Sidebar = (function () {
 
   var DOM = {};
   var isOpen = false;
+  var _desktopCollapsed = false;
+  var _LS_KEY = 'linkhive_sidebar_collapsed';
+
+  function _isDesktop() {
+    return window.innerWidth >= 1024;
+  }
+
+  function _setDesktopCollapsed(collapsed) {
+    _desktopCollapsed = collapsed;
+    DOM.appLayout.classList.toggle('sidebar-collapsed', collapsed);
+    try { localStorage.setItem(_LS_KEY, collapsed ? '1' : '0'); } catch (e) {}
+  }
+
+  function _restoreDesktopState() {
+    try {
+      var saved = localStorage.getItem(_LS_KEY);
+      if (saved === '1') _setDesktopCollapsed(true);
+    } catch (e) {}
+  }
 
   function closeAllMenus() {
     if (DOM.sidebarCollections) {
@@ -15,6 +34,7 @@ LinkHive.Sidebar = (function () {
 
   function init(dom) {
     DOM = dom;
+    _restoreDesktopState();
     document.addEventListener('click', function (e) {
       if (!e.target.closest('.collection-more-btn') && !e.target.closest('.collection-menu')) {
         closeAllMenus();
@@ -25,7 +45,11 @@ LinkHive.Sidebar = (function () {
 
   function bindEvents() {
     DOM.sidebarToggle.addEventListener('click', function () {
-      if (isOpen) { close(); } else { open(); }
+      if (_isDesktop()) {
+        _setDesktopCollapsed(!_desktopCollapsed);
+      } else {
+        if (isOpen) { close(); } else { open(); }
+      }
     });
 
     DOM.sidebarBackdrop.addEventListener('click', close);
