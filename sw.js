@@ -1,4 +1,4 @@
-var CACHE_NAME = 'linkhive-v2';
+var CACHE_NAME = 'linkhive-v3';
 var STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -19,6 +19,10 @@ var STATIC_ASSETS = [
   '/js/ui/linkGrid.js',
   '/js/app.js',
   '/favicon.svg',
+  '/favicon-32.png',
+  '/favicon-192.png',
+  '/favicon-512.png',
+  '/apple-touch-icon.png',
   '/manifest.json'
 ];
 
