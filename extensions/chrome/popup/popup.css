@@ -42,6 +42,17 @@ h1 {
 }
 
 .btn-icon:hover { color: #1f2328; }
+.settings-link {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: #656d76;
+  cursor: pointer;
+  padding: 2px 4px;
+  width: auto;
+  margin: 0;
+}
+.settings-link:hover { color: #1f2328; }
 
 .field {
   margin-bottom: 10px;
@@ -109,8 +120,8 @@ button:disabled {
 
 @media (prefers-color-scheme: dark) {
   body { color: #cdd6f4; background: #1e1e2e; }
-  .tagline, label, .status, .btn-icon { color: #a6adc8; }
-  .btn-icon:hover { color: #cdd6f4; }
+  .tagline, label, .status, .btn-icon, .settings-link { color: #a6adc8; }
+  .btn-icon:hover, .settings-link:hover { color: #cdd6f4; }
   input, textarea, select { color: #cdd6f4; background: #313244; border-color: #45475a; }
   input:focus, textarea:focus, select:focus { border-color: #89b4fa; background: #313244; }
   button { background: #89b4fa; color: #1e1e2e; }
