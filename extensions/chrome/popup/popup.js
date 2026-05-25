@@ -5,46 +5,69 @@ var _collections = [];
 function $(id) { return document.getElementById(id); }
 
 function show(viewId) {
+  console.log('show:', viewId);
   $('settingsView').classList.add('hidden');
   $('addView').classList.add('hidden');
   $(viewId).classList.remove('hidden');
 }
 
 function status(elId, msg, type) {
+  console.log('status:', elId, msg, type);
   var s = $(elId);
+  if (!s) { console.error('Element not found:', elId); return; }
   s.textContent = msg;
   s.className = 'status ' + (type || '');
 }
 
+console.log('popup.js loaded');
+
 // ─── Settings ──────────────────────────────────────────
 
+console.log('Checking storage...');
 LinkHiveExt.settings.get().then(function (cfg) {
+  console.log('Storage result:', cfg);
   if (cfg.githubToken && cfg.githubRepo) {
     initAddView(cfg);
   } else {
     show('settingsView');
   }
+}).catch(function (e) {
+  console.error('Storage error:', e);
+  show('settingsView');
 });
 
-$('settingsSave').addEventListener('click', function () {
-  var token = $('settingsToken').value.trim();
-  var repo = $('settingsRepo').value.trim();
-  var branch = $('settingsBranch').value.trim() || 'main';
-  if (!token || !repo) { status('settingsStatus', 'Token and repo required', 'error'); return; }
-  var parts = repo.split('/');
-  if (parts.length !== 2) { status('settingsStatus', 'Use owner/repo format', 'error'); return; }
-  status('settingsStatus', 'Validating...', '');
-  LinkHiveExt._getFile(token, parts[0], parts[1], branch, 'data/index.json').then(function () {
-    return LinkHiveExt.settings.save(token, repo, branch);
-  }).then(function () {
-    return LinkHiveExt.settings.get();
-  }).then(function (cfg) {
-    show('addView');
-    initAddView(cfg);
-  }).catch(function () {
-    status('settingsStatus', 'Cannot access repo. Check token + repo name.', 'error');
+console.log('Attaching settings save listener...');
+var saveBtn = $('settingsSave');
+console.log('Save button:', saveBtn);
+if (saveBtn) {
+  saveBtn.addEventListener('click', function () {
+    console.log('Save clicked');
+    var token = $('settingsToken').value.trim();
+    var repo = $('settingsRepo').value.trim();
+    var branch = $('settingsBranch').value.trim() || 'main';
+    console.log('Token:', token ? '***' + token.slice(-4) : 'empty', 'Repo:', repo);
+    if (!token || !repo) { status('settingsStatus', 'Token and repo required', 'error'); return; }
+    var parts = repo.split('/');
+    if (parts.length !== 2) { status('settingsStatus', 'Use owner/repo format', 'error'); return; }
+    status('settingsStatus', 'Validating...', '');
+    LinkHiveExt._getFile(token, parts[0], parts[1], branch, 'data/index.json').then(function () {
+      console.log('GitHub validation OK, saving settings');
+      return LinkHiveExt.settings.save(token, repo, branch);
+    }).then(function () {
+      console.log('Settings saved');
+      return LinkHiveExt.settings.get();
+    }).then(function (cfg) {
+      console.log('Settings re-loaded, showing add view');
+      show('addView');
+      initAddView(cfg);
+    }).catch(function (e) {
+      console.error('Validation failed:', e);
+      status('settingsStatus', 'Cannot access repo. Check token + repo name.', 'error');
+    });
   });
-});
+} else {
+  console.error('Save button not found!');
+}
 
 // ─── Add Link View ─────────────────────────────────────
 
