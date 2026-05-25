@@ -77,41 +77,40 @@ function initAddView() {
     }
   });
 
-  var userUrl = 'https://api.github.com/user';
-  var repoUrl = 'https://api.github.com/repos/' + _owner + '/' + _repo;
-  var myReposUrl = 'https://api.github.com/user/repos?per_page=100&sort=full_name';
-  $('debugInfo').textContent = 'Testing token...';
+  var collUrl = 'https://api.github.com/repos/' + _owner + '/' + _repo + '/contents/data/collections.json?ref=' + _branch;
+  $('debugInfo').textContent = 'Fetching collections directly...';
 
-  function xhrGet(url, label, cb) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.setRequestHeader('Authorization', 'Bearer ' + _token);
-    xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
-    xhr.onload = function () {
-      var d;
-      try { d = JSON.parse(xhr.responseText || '{}'); } catch(e) { d = {}; }
-      $('debugInfo').textContent = label + ' ' + xhr.status + ': ' + (d.login || d.full_name || d.name || d.message || xhr.responseText.slice(0,40));
-      if (cb) cb(xhr.status, d);
-    };
-    xhr.onerror = function () { $('debugInfo').textContent = label + ' error'; };
-    xhr.send();
-  }
-
-  xhrGet(userUrl, '/user', function (userStatus, userData) {
-    if (userStatus === 200) {
-      $('debugInfo').textContent = 'User: ' + userData.login + '. Checking repos...';
-      xhrGet(myReposUrl, 'repos', function (reposStatus, reposData) {
-        if (Array.isArray(reposData)) {
-          var found = reposData.filter(function(r) { return r.full_name.indexOf('linkhive') >= 0; });
-          $('debugInfo').textContent = 'Your repos containing "linkhive": ' + (found.length ? found.map(function(r){return r.full_name;}).join(', ') : 'NONE') + ' (total: ' + reposData.length + ' repos)';
-        } else {
-          $('debugInfo').textContent = 'Repos list: ' + reposStatus;
-        }
-      });
-    } else {
-      $('debugInfo').textContent = '/user returned ' + userStatus;
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', collUrl, true);
+  xhr.setRequestHeader('Authorization', 'Bearer ' + _token);
+  xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+  xhr.onload = function () {
+    var body = xhr.responseText || '';
+    var msg = 'HTTP ' + xhr.status;
+    try {
+      var d = JSON.parse(body);
+      msg += ': ' + (d.message || d.name || (d.content ? 'FILE FOUND (' + Math.round(body.length/1024) + 'KB)' : '?'));
+    } catch(e) {
+      msg += ': ' + body.slice(0, 50);
     }
-  });
+    $('debugInfo').textContent = msg;
+    if (xhr.status === 200) {
+      // Collections found!
+      try {
+        var d = JSON.parse(body);
+        var content = JSON.parse(atob(d.content.replace(/\s/g, '')));
+        _collections = content;
+        var sel = $('linkCollection');
+        sel.innerHTML = '<option value="">No collection</option>';
+        content.forEach(function(c) { sel.innerHTML += '<option value="' + c.id + '">' + c.name + '</option>'; });
+        $('collHint').classList.add('hidden');
+      } catch(e) {
+        $('debugInfo').textContent = 'Parse error: ' + e.message;
+      }
+    }
+  };
+  xhr.onerror = function () { $('debugInfo').textContent = 'XHR error'; };
+  xhr.send();
 
   LinkHiveExt.fetchCollections(_token, _owner, _repo, _branch).then(function (cols) {
     $('debugInfo').textContent = ($('debugInfo').textContent || '') + ' | parsed: ' + (cols ? cols.length : 0);
