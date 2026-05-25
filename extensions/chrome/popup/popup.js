@@ -77,28 +77,17 @@ function initAddView() {
     }
   });
 
-  var apiUrl = LinkHiveExt._apiUrl(_owner, _repo, 'data/collections.json') + '?ref=' + _branch;
+  var collUrl = LinkHiveExt._apiUrl(_owner, _repo, 'data/collections.json') + '?ref=' + _branch;
   var rawUrl = 'https://raw.githubusercontent.com/' + _owner + '/' + _repo + '/' + _branch + '/data/collections.json';
-  var idxUrl = LinkHiveExt._apiUrl(_owner, _repo, 'data/index.json') + '?ref=' + _branch;
-  $('debugInfo').textContent = 'Checking: ' + _owner + '/' + _repo;
+  $('debugInfo').textContent = 'Checking API...';
 
-  fetch(idxUrl, { headers: { 'Authorization': 'token ' + _token } }).then(function (r) {
-    return r.text().then(function (body) {
-      $('debugInfo').textContent = 'index.json HTTP ' + r.status;
-      return fetch(apiUrl, { headers: { 'Authorization': 'token ' + _token } }).then(function (r2) {
-        return r2.text().then(function (body2) {
-          $('debugInfo').textContent = 'index=' + r.status + ' collections=' + r2.status + ' (' + body2.slice(0, 40) + '...)';
-          return fetch(rawUrl, { headers: { 'Authorization': 'token ' + _token } }).then(function (r3) {
-            return r3.text().then(function (body3) {
-              $('debugInfo').textContent = 'API: index=' + r.status + ' coll=' + r2.status + ' RAW: ' + r3.status + ' (' + body3.slice(0, 40) + '...)';
-            });
-          });
-        });
-      });
-    });
-  }).catch(function (e) {
-    $('debugInfo').textContent = 'fetch error: ' + e.message;
-  });
+  fetch(collUrl, { headers: { 'Authorization': 'token ' + _token } })
+    .then(function (r) { return r.text().then(function (b) { $('debugInfo').textContent = 'API: ' + r.status; }); })
+    .catch(function (e) { $('debugInfo').textContent = 'API error: ' + e.message; });
+
+  fetch(rawUrl, { headers: { 'Authorization': 'token ' + _token } })
+    .then(function (r) { return r.text().then(function (b) { $('debugInfo').textContent = ($('debugInfo').textContent || '') + ' RAW: ' + r.status + ' (' + b.slice(0, 30) + ')'; }); })
+    .catch(function (e) { $('debugInfo').textContent = ($('debugInfo').textContent || '') + ' RAW error: ' + e.message; });
 
   LinkHiveExt.fetchCollections(_token, _owner, _repo, _branch).then(function (cols) {
     $('debugInfo').textContent = ($('debugInfo').textContent || '') + ' | parsed: ' + (cols ? cols.length : 0);
