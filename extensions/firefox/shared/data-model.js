@@ -4,7 +4,11 @@ var extStorage = (typeof chrome !== 'undefined' && chrome.storage && chrome.stor
   ? chrome.storage.sync
   : (typeof browser !== 'undefined' && browser.storage && browser.storage.sync)
     ? browser.storage.sync
-    : null;
+  : (typeof browser !== 'undefined' && browser.storage && browser.storage.local)
+    ? browser.storage.local
+    : (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local)
+      ? chrome.storage.local
+      : null;
 
 LinkHiveExt.makeLink = function (url, title, description, collectionId, collectionSlug, tags) {
   return {
@@ -34,21 +38,33 @@ LinkHiveExt.collectionIdMap = function (collections) {
   return map;
 };
 
+function withStorage(fn) {
+  return new Promise(function (resolve) {
+    if (!extStorage) { resolve({}); return; }
+    try {
+      fn(resolve);
+    } catch (e) {
+      console.warn('LinkHive storage error:', e);
+      resolve({});
+    }
+  });
+}
+
 LinkHiveExt.settings = {
   get: function () {
-    return new Promise(function (resolve) {
+    return withStorage(function (resolve) {
       extStorage.get(['githubToken', 'githubRepo', 'githubBranch'], function (items) {
         resolve(items);
       });
     });
   },
   save: function (token, repo, branch) {
-    return new Promise(function (resolve) {
+    return withStorage(function (resolve) {
       extStorage.set({ githubToken: token, githubRepo: repo, githubBranch: branch || 'main' }, resolve);
     });
   },
   clear: function () {
-    return new Promise(function (resolve) {
+    return withStorage(function (resolve) {
       extStorage.remove(['githubToken', 'githubRepo', 'githubBranch'], resolve);
     });
   }
