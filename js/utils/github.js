@@ -122,11 +122,7 @@ LinkHive.GitHubClient = (function () {
         });
       });
     };
-        });
-      }
-      if (!res.ok) throw new Error('GitHub API error: ' + res.status);
-      return res.json();
-    });
+
   };
 
   GitHubClient.prototype.deleteFile = function (path, sha) {
