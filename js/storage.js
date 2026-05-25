@@ -235,11 +235,12 @@ LinkHive.LocalBackend.prototype.importData = function (jsonStr) {
       var tx = db.transaction(['collections', 'links'], 'readwrite');
       var cStore = tx.objectStore('collections');
       var lStore = tx.objectStore('links');
-      cStore.clear();
-      lStore.clear();
-      data.collections.forEach(function (c) { cStore.put(c); });
-      data.links.forEach(function (l) { lStore.put(l); });
-      tx.oncomplete = resolve;
+      var requests = [];
+      requests.push(cStore.clear());
+      requests.push(lStore.clear());
+      data.collections.forEach(function (c) { requests.push(cStore.put(c)); });
+      data.links.forEach(function (l) { requests.push(lStore.put(l)); });
+      tx.oncomplete = function () { resolve(); };
       tx.onerror = function () { reject(new Error('Failed to import data')); };
     });
   });

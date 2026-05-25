@@ -156,6 +156,10 @@ If you find LinkHive useful, consider [buying me a coffee](https://buymeacoffee.
 
 ## Changelog
 
+### [v0.1.2](https://github.com/mojoaar/linkhive/releases/tag/v0.1.2) — Bugfix
+
+- Fix collections missing after GitHub pull during onboarding. `importData()` now holds references to all IDBRequest objects to prevent garbage collection from aborting writes before the transaction commits.
+
 ### [v0.1.1](https://github.com/mojoaar/linkhive/releases/tag/v0.1.1) — Bugfix
 
 - Fix IndexedDB transaction error ("transaction is inactive or finished") during GitHub pull on first onboarding. Rewrote `importData()` to use a single transaction spanning both object stores instead of two async-nested transactions.

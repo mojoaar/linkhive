@@ -1,6 +1,6 @@
 window.LinkHive = window.LinkHive || {};
 
-LinkHive.VERSION = '0.1.1';
+LinkHive.VERSION = '0.1.2';
 
 LinkHive.DEFAULTS = {
   theme: 'catppuccin',
