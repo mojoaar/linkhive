@@ -12,7 +12,7 @@
 - **Client-side only** — no server, no database, no signup. Everything stays in your browser
 - **Offline-first** — full PWA with service worker caching. Works without internet
 - **GitHub sync** — back up your links to a private GitHub repo (PAT auth)
-- **Chrome extension** — save links from any tab via `Cmd+Shift+L` with collection support
+- **Chrome extension** — save links from any tab via `Ctrl+Shift+L` / `Cmd+Shift+L` with collection support
 - **Collections** — organize links with custom icons, colors, and names
 - **Tags** — full tag system with search and filtering
 - **Rich import** — import from Raindrop.io CSV exports (auto-creates collections)
@@ -119,11 +119,11 @@ linkhive/
 │   ├── linkStore.js        # Link & collection CRUD
 │   ├── storage.js          # IndexedDB + GitHub backend
 │   ├── themes.js           # Theme engine
-│   └── ui/                 # UI modules
-│       ├── forms.js        # URL metadata parser
-│       ├── linkGrid.js     # Link card grid/list
-│       ├── modals.js       # Settings, link, collection modals
-│       └── sidebar.js      # Navigation, profile
+│   ├── ui/                 # UI modules
+│   │   ├── forms.js        # URL metadata parser
+│   │   ├── linkGrid.js     # Link card grid/list
+│   │   ├── modals.js       # Settings, link, collection modals
+│   │   └── sidebar.js      # Navigation, profile
 │   └── utils/
 │       ├── dom.js          # DOM helpers
 │       └── github.js       # GitHub API client
@@ -178,9 +178,7 @@ If you find LinkHive useful, consider [buying me a coffee](https://buymeacoffee.
 - Add link saving with collection and tag support from the popup
 - Add existing link detection — pre-fills form with current data, button changes to "Update"
 - Add dark/light mode icon switching (black cloud on light, white cloud on dark)
-- Add pull-before-push sync — web app now merges extension-added links on sync
 - Add host_permissions for GitHub API access in Chrome MV3
-- Fix GitHub sync to merge remote data instead of overwriting
 - Various stability fixes for XHR calls and timeout handling
 
 ### [v0.1.6](https://github.com/mojoaar/linkhive/releases/tag/v0.1.6) — Bugfix
@@ -227,7 +225,7 @@ If you find LinkHive useful, consider [buying me a coffee](https://buymeacoffee.
 
 - Client-side link manager with IndexedDB storage
 - GitHub sync via Personal Access Token (chunked file storage)
-- Collections with custom icons (350+ Lucide + Simple Icons) and colors (32)
+- Collections with custom icons (350+ Lucide icons) and colors (32)
 - Full tag system with search, filtering, and tag cloud
 - Raindrop.io CSV import with auto-collection creation
 - Dark/light themes: Catppuccin, Dracula, Nord
