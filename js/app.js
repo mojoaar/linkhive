@@ -309,8 +309,14 @@ LinkHive.Sync = (function () {
 
     var mergeById = function (local, remote) {
       var map = {};
-      (remote || []).forEach(function (item) { map[item.id] = item; });
       (local || []).forEach(function (item) { map[item.id] = item; });
+      (remote || []).forEach(function (item) {
+        var existing = map[item.id];
+        if (!existing) { map[item.id] = item; return; }
+        var remoteTime = new Date(item.updatedAt || 0).getTime();
+        var localTime = new Date(existing.updatedAt || 0).getTime();
+        if (remoteTime > localTime) { map[item.id] = item; }
+      });
       return Object.values(map);
     };
 
