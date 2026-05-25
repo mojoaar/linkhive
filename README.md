@@ -180,8 +180,6 @@ If you find LinkHive useful, consider [buying me a coffee](https://buymeacoffee.
 - Add pull-before-push sync — web app now merges extension-added links on sync
 - Add host_permissions for GitHub API access in Chrome MV3
 - Fix GitHub sync to merge remote data instead of overwriting
-- Remove Firefox extension (Chrome-only for now)
-- Use downloaded cloud icon for toolbar button
 - Various stability fixes for XHR calls and timeout handling
 
 ### [v0.1.6](https://github.com/mojoaar/linkhive/releases/tag/v0.1.6) — Bugfix
