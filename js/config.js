@@ -119,5 +119,8 @@ LinkHive.COLLECTION_ICONS = [
   'users', 'users-round', 'user-check', 'user-x', 'user-cog',
   'thumbs-up', 'thumbs-down', 'message-square', 'share-2',
   'flask-conical', 'flask-conical-off', 'flask-round',
-  'pickaxe', 'brick-wall-fire', 'brick-wall-shield'
+  'pickaxe', 'brick-wall-fire', 'brick-wall-shield',
+  'cow', 'pig', 'snail', 'turtle', 'squirrel', 'rabbit',
+  'spider', 'snake', 'whale', 'shrimp', 'crab', 'octopus',
+  'horse', 'paw-print'
 ];
