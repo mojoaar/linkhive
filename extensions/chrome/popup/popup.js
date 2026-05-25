@@ -79,17 +79,14 @@ function initAddView() {
 
   var idxUrl = LinkHiveExt._apiUrl(_owner, _repo, 'data/index.json') + '?ref=' + _branch;
   var collUrl = LinkHiveExt._apiUrl(_owner, _repo, 'data/collections.json') + '?ref=' + _branch;
-  $('debugInfo').textContent = 'Checking...';
+  var repoCheckUrl = 'https://api.github.com/repos/' + _owner + '/' + _repo;
+  $('debugInfo').textContent = 'Checking repo: ' + repoCheckUrl;
 
-  fetch(idxUrl, { headers: { 'Authorization': 'token ' + _token, 'Accept': 'application/vnd.github.v3+json' } })
-    .then(function (r) { return r.text().then(function () {
-      $('debugInfo').textContent = 'index.json: ' + r.status;
-      return fetch(collUrl, { headers: { 'Authorization': 'token ' + _token, 'Accept': 'application/vnd.github.v3+json' } })
-        .then(function (r2) { return r2.text().then(function () {
-          $('debugInfo').textContent = ($('debugInfo').textContent || '') + ' | collections.json: ' + r2.status;
-        }); });
+  fetch(repoCheckUrl, { headers: { 'Authorization': 'token ' + _token, 'Accept': 'application/vnd.github.v3+json' } })
+    .then(function (r) { return r.json().then(function (d) {
+      $('debugInfo').textContent = 'Repo ' + r.status + ': ' + (d.full_name || d.message || '?');
     }); })
-    .catch(function (e) { $('debugInfo').textContent = 'error: ' + e.message; });
+    .catch(function (e) { $('debugInfo').textContent = 'repo error: ' + e.message; });
 
   LinkHiveExt.fetchCollections(_token, _owner, _repo, _branch).then(function (cols) {
     $('debugInfo').textContent = ($('debugInfo').textContent || '') + ' | parsed: ' + (cols ? cols.length : 0);
