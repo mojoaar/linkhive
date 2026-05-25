@@ -65,6 +65,7 @@ Raindrop.io CSV import uses a state-machine parser in `modals.js:parseCSV()` tha
 
 - **Minor releases** (`0.2.0`, `0.3.0`, ...): bump `LinkHive.VERSION` in `config.js`, update `README.md` changelog, create Git tag, push with `--tags`
 - **Patch/bugfix releases**: bump `LinkHive.VERSION` (e.g. `0.2.1`), update changelog, commit and push to `main` — **no Git tag**
+- **Bundle minor fixes**: accumulate small fixes locally. User will explicitly say when to bundle and push as the next `v0.1.X`. Do NOT increment version or push until asked.
 
 ## Deploy
 
