@@ -36,34 +36,55 @@ function getStorage() {
 
 var _store = null;
 
+function storageGet(keys) {
+  return new Promise(function (resolve) {
+    if (!_store) _store = getStorage();
+    if (!_store) { resolve({}); return; }
+    try {
+      var result = _store.get(keys);
+      if (result && typeof result.then === 'function') {
+        result.then(function (items) { resolve(items || {}); }, function () { resolve({}); });
+      } else {
+        _store.get(keys, function (items) { resolve(items || {}); });
+      }
+    } catch (e) { resolve({}); }
+  });
+}
+
+function storageSet(data) {
+  return new Promise(function (resolve) {
+    if (!_store) _store = getStorage();
+    if (!_store) { resolve(); return; }
+    try {
+      var result = _store.set(data);
+      if (result && typeof result.then === 'function') {
+        result.then(resolve, resolve);
+      } else {
+        _store.set(data, resolve);
+      }
+    } catch (e) { resolve(); }
+  });
+}
+
+function storageRemove(keys) {
+  return new Promise(function (resolve) {
+    if (!_store) _store = getStorage();
+    if (!_store) { resolve(); return; }
+    try {
+      var result = _store.remove(keys);
+      if (result && typeof result.then === 'function') {
+        result.then(resolve, resolve);
+      } else {
+        _store.remove(keys, resolve);
+      }
+    } catch (e) { resolve(); }
+  });
+}
+
 LinkHiveExt.settings = {
-  get: function () {
-    return new Promise(function (resolve) {
-      if (!_store) _store = getStorage();
-      if (!_store) { resolve({}); return; }
-      try {
-        _store.get(['githubToken', 'githubRepo', 'githubBranch'], function (items) { resolve(items || {}); });
-      } catch (e) { resolve({}); }
-    });
-  },
-  save: function (token, repo, branch) {
-    return new Promise(function (resolve) {
-      if (!_store) _store = getStorage();
-      if (!_store) { resolve(); return; }
-      try {
-        _store.set({ githubToken: token, githubRepo: repo, githubBranch: branch || 'main' }, resolve);
-      } catch (e) { resolve(); }
-    });
-  },
-  clear: function () {
-    return new Promise(function (resolve) {
-      if (!_store) _store = getStorage();
-      if (!_store) { resolve(); return; }
-      try {
-        _store.remove(['githubToken', 'githubRepo', 'githubBranch'], resolve);
-      } catch (e) { resolve(); }
-    });
-  }
+  get: function () { return storageGet(['githubToken', 'githubRepo', 'githubBranch']); },
+  save: function (token, repo, branch) { return storageSet({ githubToken: token, githubRepo: repo, githubBranch: branch || 'main' }); },
+  clear: function () { return storageRemove(['githubToken', 'githubRepo', 'githubBranch']); }
 };
 var LinkHiveExt = LinkHiveExt || {};
 
