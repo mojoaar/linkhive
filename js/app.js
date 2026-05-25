@@ -484,3 +484,7 @@ LinkHive.Toast = (function () {
     LinkHive.App.init();
   }
 })();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
