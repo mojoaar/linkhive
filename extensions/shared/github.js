@@ -98,7 +98,17 @@ LinkHiveExt._getFile = function (token, owner, repo, branch, path) {
       if (xhr.status !== 200) { reject(new Error('GitHub API error: ' + xhr.status)); return; }
       try {
         var data = JSON.parse(xhr.responseText);
-        resolve({ path: data.path, sha: data.sha, content: JSON.parse(atob(data.content.replace(/\s/g, ''))) });
+        var raw = atob(data.content.replace(/\s/g, ''));
+        var decoded = '';
+        var i = 0;
+        while (i < raw.length) {
+          var c = raw.charCodeAt(i);
+          if (c < 128) { decoded += String.fromCharCode(c); i++; }
+          else if (c < 224) { decoded += String.fromCharCode(((c & 31) << 6) | (raw.charCodeAt(i+1) & 63)); i += 2; }
+          else if (c < 240) { decoded += String.fromCharCode(((c & 15) << 12) | ((raw.charCodeAt(i+1) & 63) << 6) | (raw.charCodeAt(i+2) & 63)); i += 3; }
+          else { var cp = ((c & 7) << 18) | ((raw.charCodeAt(i+1) & 63) << 12) | ((raw.charCodeAt(i+2) & 63) << 6) | (raw.charCodeAt(i+3) & 63); decoded += String.fromCodePoint(cp); i += 4; }
+        }
+        resolve({ path: data.path, sha: data.sha, content: JSON.parse(decoded) });
       } catch (e) { reject(e); }
     };
     xhr.onerror = function () { reject(new Error('Network error')); };

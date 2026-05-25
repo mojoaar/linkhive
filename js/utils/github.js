@@ -52,7 +52,18 @@ LinkHive.GitHubClient = (function () {
       return {
         path: data.path,
         sha: data.sha,
-        content: JSON.parse(atob(data.content.replace(/\s/g, '')))
+        content: (function () {
+          var raw = atob(data.content.replace(/\s/g, ''));
+          var decoded = '';
+          for (var i = 0; i < raw.length;) {
+            var c = raw.charCodeAt(i);
+            if (c < 128) { decoded += String.fromCharCode(c); i++; }
+            else if (c < 224) { decoded += String.fromCharCode(((c & 31) << 6) | (raw.charCodeAt(i+1) & 63)); i += 2; }
+            else if (c < 240) { decoded += String.fromCharCode(((c & 15) << 12) | ((raw.charCodeAt(i+1) & 63) << 6) | (raw.charCodeAt(i+2) & 63)); i += 3; }
+            else { decoded += String.fromCodePoint(((c & 7) << 18) | ((raw.charCodeAt(i+1) & 63) << 12) | ((raw.charCodeAt(i+2) & 63) << 6) | (raw.charCodeAt(i+3) & 63)); i += 4; }
+          }
+          return JSON.parse(decoded);
+        })()
       };
     });
   };
