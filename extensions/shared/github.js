@@ -1,20 +1,5 @@
 var LinkHiveExt = LinkHiveExt || {};
 
-LinkHiveExt.RAW_URL = 'https://raw.githubusercontent.com';
-
-LinkHiveExt.fetchConfig = function (owner, repo, branch) {
-  return fetch(LinkHiveExt.RAW_URL + '/' + owner + '/' + repo + '/' + branch + '/data/config.json')
-    .then(function (res) { if (!res.ok) return null; return res.json(); });
-};
-
-LinkHiveExt.saveConfig = function (token, owner, repo, branch, config) {
-  return LinkHiveExt._getFile(token, owner, repo, branch, 'data/config.json')
-    .then(function (existing) { return existing ? existing.sha : undefined; })
-    .then(function (sha) {
-      return LinkHiveExt._putFile(token, owner, repo, branch, 'data/config.json', config, sha);
-    });
-};
-
 LinkHiveExt.GITHUB_API = 'https://api.github.com';
 
 LinkHiveExt.fetchCollections = function (token, owner, repo, branch) {

@@ -1,8 +1,5 @@
 var LinkHiveExt = LinkHiveExt || {};
 
-LinkHiveExt.REPO = 'mojoaar/linkhive';
-LinkHiveExt.BRANCH = 'main';
-
 LinkHiveExt.makeLink = function (url, title, description, collectionId, collectionSlug, tags) {
   return {
     id: 'lh_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 9),

@@ -2,9 +2,9 @@
 
 var _collections = [];
 var _token = '';
-var _owner = LinkHiveExt.REPO.split('/')[0];
-var _repo = LinkHiveExt.REPO.split('/')[1];
-var _branch = LinkHiveExt.BRANCH;
+var _repo = '';
+var _owner = '';
+var _branch = 'main';
 
 function $(id) { return document.getElementById(id); }
 
@@ -23,53 +23,56 @@ function status(elId, msg, type) {
 
 // ─── Init ──────────────────────────────────────────────
 
-$('setupRepo').textContent = LinkHiveExt.REPO;
-
-LinkHiveExt.fetchConfig(_owner, _repo, _branch).then(function (config) {
-  if (config && config.token) {
-    _token = config.token;
+chrome.storage.sync.get(['githubToken', 'githubRepo', 'githubBranch'], function (items) {
+  if (items.githubToken && items.githubRepo) {
+    _token = items.githubToken;
+    _repo = items.githubRepo;
+    _owner = _repo.split('/')[0];
+    _branch = items.githubBranch || 'main';
     show('addView');
     initAddView();
   } else {
     show('setupView');
   }
-}).catch(function () {
-  show('setupView');
 });
 
 // ─── Setup ─────────────────────────────────────────────
 
 $('setupSave').addEventListener('click', function () {
   var token = $('setupToken').value.trim();
-  if (!token) { status('setupStatus', 'Token is required', 'error'); return; }
+  var repo = $('setupRepo').value.trim();
+  var branch = $('setupBranch').value.trim() || 'main';
+  if (!token || !repo) { status('setupStatus', 'Token and repo required', 'error'); return; }
+  var parts = repo.split('/');
+  if (parts.length !== 2) { status('setupStatus', 'Use owner/repo format', 'error'); return; }
   status('setupStatus', 'Validating...', '');
-  LinkHiveExt._getFile(token, _owner, _repo, _branch, 'data/index.json').then(function () {
-    return LinkHiveExt.saveConfig(token, _owner, _repo, _branch, { token: token, repo: LinkHiveExt.REPO, branch: _branch });
+  LinkHiveExt._getFile(token, parts[0], parts[1], branch, 'data/index.json').then(function () {
+    return new Promise(function (resolve) {
+      chrome.storage.sync.set({ githubToken: token, githubRepo: repo, githubBranch: branch }, resolve);
+    });
   }).then(function () {
     _token = token;
+    _repo = repo;
+    _owner = parts[0];
+    _branch = branch;
     status('setupStatus', 'Connected!', 'success');
     show('addView');
     initAddView();
-  }).catch(function (e) {
-    status('setupStatus', 'Cannot access repo. Check token.', 'error');
+  }).catch(function () {
+    status('setupStatus', 'Cannot access repo. Check token + repo name.', 'error');
   });
 });
 
 // ─── Add Link View ─────────────────────────────────────
 
 function initAddView() {
-  try {
-    var tabsApi = chrome && chrome.tabs ? chrome.tabs : (browser && browser.tabs ? browser.tabs : null);
-    if (tabsApi) {
-      tabsApi.query({ active: true, currentWindow: true }, function (tabs) {
-        var tab = tabs && tabs[0];
-        if (tab) {
-          $('linkUrl').value = tab.url || '';
-          $('linkTitle').value = tab.title || '';
-        }
-      });
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    var tab = tabs && tabs[0];
+    if (tab) {
+      $('linkUrl').value = tab.url || '';
+      $('linkTitle').value = tab.title || '';
     }
-  } catch(e) {}
+  });
 
   LinkHiveExt.fetchCollections(_token, _owner, _repo, _branch).then(function (cols) {
     _collections = cols;
