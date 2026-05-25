@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>LinkHive</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+<div id="settingsView" class="view">
+  <h1>LinkHive</h1>
+  <p class="tagline">Never lose a link again</p>
+  <div class="field">
+    <label>GitHub Token</label>
+    <input type="password" id="settingsToken" placeholder="ghp_...">
+  </div>
+  <div class="field">
+    <label>Repository</label>
+    <input type="text" id="settingsRepo" placeholder="owner/repo-name">
+  </div>
+  <div class="field">
+    <label>Branch</label>
+    <input type="text" id="settingsBranch" placeholder="main" value="main">
+  </div>
+  <button id="settingsSave">Save &amp; Connect</button>
+  <p class="status" id="settingsStatus"></p>
+</div>
+
+<div id="addView" class="view hidden">
+  <div class="header-bar">
+    <h1>Add to LinkHive</h1>
+    <button id="btnSettings" class="btn-icon" title="Settings" aria-label="Settings">&#9881;</button>
+  </div>
+  <div class="field">
+    <label>URL</label>
+    <input type="url" id="linkUrl" placeholder="https://...">
+  </div>
+  <div class="field">
+    <label>Title</label>
+    <input type="text" id="linkTitle" placeholder="Page title">
+  </div>
+  <div class="field">
+    <label>Description</label>
+    <textarea id="linkDesc" placeholder="Description" rows="2"></textarea>
+  </div>
+  <div class="field">
+    <label>Collection</label>
+    <select id="linkCollection"></select>
+  </div>
+  <div class="field">
+    <label>Tags</label>
+    <input type="text" id="linkTags" placeholder="tag1, tag2">
+  </div>
+  <button id="linkSave">Save Link</button>
+  <p class="status" id="linkStatus"></p>
+</div>
+
+<script src="../shared/data-model.js"></script>
+<script src="../shared/github.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>
