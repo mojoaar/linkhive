@@ -316,7 +316,26 @@ LinkHive.Sync = (function () {
         chunks.push(links.slice(i, i + chunkSize));
       }
 
-      return pushFile('data/collections.json', collections).then(function () {
+      var pushCollWithRetry = function (attempts) {
+        return pushFile('data/collections.json', collections).catch(function (e) {
+          if (attempts > 0 && e.message.indexOf('409') !== -1) {
+            return LinkHive.LinkStore.loadAll().then(function () {
+              return getAll().then(function (fresh) {
+                collections = fresh[0];
+                links = fresh[1];
+                chunks = [];
+                for (var i = 0; i < links.length; i += chunkSize) {
+                  chunks.push(links.slice(i, i + chunkSize));
+                }
+                return pushCollWithRetry(attempts - 1);
+              });
+            });
+          }
+          throw e;
+        });
+      };
+
+      return pushCollWithRetry(2).then(function () {
         var chain = Promise.resolve();
         chunks.forEach(function (chunk, idx) {
           chain = chain.then(function () {

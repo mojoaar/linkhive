@@ -92,6 +92,7 @@ LinkHive.GitHubClient = (function () {
     });
 
     function _retry409(path, b64content, branch, remaining) {
+      var delay = (5 - remaining) * 1000;
       return new Promise(function (resolveRetry) {
         setTimeout(function () {
           resolveRetry(self.getFile(path).then(function (fresh) {
@@ -116,7 +117,7 @@ LinkHive.GitHubClient = (function () {
             if (typeof e.message === 'string' && e.message.indexOf('404') !== -1) return;
             throw e;
           }));
-        }, 1000);
+        }, delay);
       });
     };
 
