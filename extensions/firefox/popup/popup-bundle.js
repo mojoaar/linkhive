@@ -28,31 +28,35 @@ LinkHiveExt.collectionIdMap = function (collections) {
   return map;
 };
 
+function getStore() {
+  try { if (typeof browser !== 'undefined' && browser.storage && browser.storage.local) return browser.storage.local; } catch(e) {}
+  try { if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) return chrome.storage.local; } catch(e) {}
+  return null;
+}
+
+function storeCall(method, arg) {
+  return new Promise(function (resolve) {
+    var store = getStore();
+    if (!store) { resolve(method === 'get' ? {} : undefined); return; }
+    try {
+      var result = store[method](arg);
+      if (result && typeof result.then === 'function') {
+        result.then(function (v) { resolve(v || {}); }, function () { resolve(method === 'get' ? {} : undefined); });
+      } else if (method === 'get') {
+        store.get(arg, function (items) { resolve(items || {}); });
+      } else {
+        store[method](arg, function () { resolve(); });
+      }
+    } catch (e) { resolve(method === 'get' ? {} : undefined); }
+  });
+}
+
 LinkHiveExt.settings = {
-  get: function () {
-    return new Promise(function (resolve) {
-      try {
-        var data = JSON.parse(localStorage.getItem('linkhive_ext_settings') || '{}');
-        resolve(data);
-      } catch (e) { resolve({}); }
-    });
-  },
+  get: function () { return storeCall('get', ['githubToken', 'githubRepo', 'githubBranch']); },
   save: function (token, repo, branch) {
-    return new Promise(function (resolve) {
-      try {
-        localStorage.setItem('linkhive_ext_settings', JSON.stringify({
-          githubToken: token, githubRepo: repo, githubBranch: branch || 'main'
-        }));
-      } catch (e) {}
-      resolve();
-    });
+    return storeCall('set', { githubToken: token, githubRepo: repo, githubBranch: branch || 'main' });
   },
-  clear: function () {
-    return new Promise(function (resolve) {
-      try { localStorage.removeItem('linkhive_ext_settings'); } catch (e) {}
-      resolve();
-    });
-  }
+  clear: function () { return storeCall('remove', ['githubToken', 'githubRepo', 'githubBranch']); }
 };
 var LinkHiveExt = LinkHiveExt || {};
 
