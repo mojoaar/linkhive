@@ -1,14 +1,10 @@
 var LinkHiveExt = LinkHiveExt || {};
 
-var extStorage = (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync)
-  ? chrome.storage.sync
-  : (typeof browser !== 'undefined' && browser.storage && browser.storage.sync)
-    ? browser.storage.sync
-  : (typeof browser !== 'undefined' && browser.storage && browser.storage.local)
-    ? browser.storage.local
-    : (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local)
-      ? chrome.storage.local
-      : null;
+var extStorage = null;
+try { if (chrome && chrome.storage && chrome.storage.sync) { extStorage = chrome.storage.sync; } } catch(e) {}
+try { if (!extStorage && browser && browser.storage && browser.storage.sync) { extStorage = browser.storage.sync; } } catch(e) {}
+try { if (!extStorage && browser && browser.storage && browser.storage.local) { extStorage = browser.storage.local; } } catch(e) {}
+try { if (!extStorage && chrome && chrome.storage && chrome.storage.local) { extStorage = chrome.storage.local; } } catch(e) {}
 
 LinkHiveExt.makeLink = function (url, title, description, collectionId, collectionSlug, tags) {
   return {
