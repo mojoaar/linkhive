@@ -47,7 +47,8 @@ $('setupSave').addEventListener('click', function () {
   var parts = repo.split('/');
   if (parts.length !== 2) { status('setupStatus', 'Use owner/repo format', 'error'); return; }
   status('setupStatus', 'Validating...', '');
-  LinkHiveExt._getFile(token, parts[0], parts[1], branch, 'data/index.json').then(function () {
+  LinkHiveExt._getFile(token, parts[0], parts[1], branch, 'data/index.json').then(function (data) {
+    if (!data) throw new Error('Repo empty or not found');
     return new Promise(function (resolve) {
       chrome.storage.sync.set({ githubToken: token, githubRepo: repo, githubBranch: branch }, resolve);
     });
