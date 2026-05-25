@@ -452,6 +452,13 @@ var ICONS = {
   'octopus': '<circle cx="12" cy="12" r="8"/><path d="M12 4v2M12 18v2M7.05 7.05 8.5 8.5M15.5 15.5l1.45 1.45M4.3 12H2M22 12h-2.3M7.05 16.95 8.5 15.5M15.5 8.5l1.45-1.45"/>',
   'horse': '<path d="M18.5 15.5c.6 1.3.2 2.5-.8 3.2a6 6 0 0 1-11.4 0c-1-.7-1.4-1.9-.8-3.2M13 22v-8"/><path d="M11 22v-9"/><path d="M16.5 8.5a4 4 0 0 1-9 0C7.5 3 12 2 12 2s4.5 1 4.5 6.5Z"/><path d="M12 2v5"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="9" r="1"/>',
   'paw-print': '<circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><circle cx="4" cy="16" r="2"/><path d="M7.5 20.5 12 19l4.5 1.5"/><path d="M8.5 16.5C9 15 10 13 12 13s3 2 3.5 3.5"/>',
+  'app-window': '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 4v4"/><path d="M2 8h20"/><path d="M6 4v4"/>',
+  'app-window-mac': '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="M6 2v.01M10 2v.01M14 2v.01"/>',
+  'grid-2x2': '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/><path d="M12 3v18"/>',
+  'grid-3x2': '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M12 3v18"/>',
+  'layout-panel-top': '<rect width="18" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/>',
+  'layout-template': '<rect width="18" height="7" x="3" y="3" rx="1"/><rect width="9" height="7" x="3" y="14" rx="1"/><rect width="5" height="7" x="16" y="14" rx="1"/>',
+  'panels-top-left': '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h9"/><path d="M12 3v9"/>',
 };
 
 function renderIcons(root) {

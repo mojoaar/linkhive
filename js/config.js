@@ -122,5 +122,7 @@ LinkHive.COLLECTION_ICONS = [
   'pickaxe', 'brick-wall-fire', 'brick-wall-shield',
   'cow', 'pig', 'snail', 'turtle', 'squirrel', 'rabbit',
   'spider', 'snake', 'whale', 'shrimp', 'crab', 'octopus',
-  'horse', 'paw-print'
+  'horse', 'paw-print',
+  'app-window', 'app-window-mac', 'grid-2x2', 'grid-3x2',
+  'layout-panel-top', 'layout-template', 'panels-top-left'
 ];
