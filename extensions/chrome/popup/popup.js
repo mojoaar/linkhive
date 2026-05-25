@@ -84,8 +84,8 @@ function initAddView() {
     if (!cols || cols.length === 0) {
       $('collHint').classList.remove('hidden');
     }
-  }).catch(function () {
-    status('linkStatus', 'Failed to load collections', 'error');
+  }).catch(function (e) {
+    status('linkStatus', 'Failed to load collections: ' + (e.message || 'unknown'), 'error');
   });
 
   $('linkSave').onclick = function () {

@@ -5,6 +5,13 @@ LinkHiveExt.GITHUB_API = 'https://api.github.com';
 LinkHiveExt.fetchCollections = function (token, owner, repo, branch) {
   return LinkHiveExt._getFile(token, owner, repo, branch, 'data/collections.json').then(function (data) {
     return data ? data.content : [];
+  }).catch(function () {
+    return [];
+  }).then(function (cols) {
+    if (cols && cols.length > 0) return cols;
+    return LinkHiveExt._getFile(token, owner, repo, branch, 'profiles/default/collections.json').then(function (data) {
+      return data ? data.content : [];
+    });
   });
 };
 
