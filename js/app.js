@@ -328,14 +328,35 @@ LinkHive.Sync = (function () {
     }).catch(function (err) { LinkHive.Toast.show('Pull failed: ' + (err.message || 'error'), 'error'); throw err; });
   }
   var _autoSyncTimer = null;
+  var _syncing = false;
+  var _syncPending = false;
 
   function autoSync() {
     var config = LinkHive.Config.get();
     if (!config || config.storage !== 'github' || !config.githubToken || !config.githubRepo) return;
     clearTimeout(_autoSyncTimer);
     _autoSyncTimer = setTimeout(function () {
-      pushToGithub().catch(function () {});
+      if (_syncing) { _syncPending = true; return; }
+      _doPush().catch(function () {});
     }, 2000);
+  }
+
+  function _doPush() {
+    _syncing = true;
+    _syncPending = false;
+    return pushToGithub().then(function () {
+      _syncing = false;
+      if (_syncPending) {
+        _syncPending = false;
+        _doPush().catch(function () {});
+      }
+    }).catch(function () {
+      _syncing = false;
+      if (_syncPending) {
+        _syncPending = false;
+        _doPush().catch(function () {});
+      }
+    });
   }
 
   return { pushToGithub: pushToGithub, pullFromGithub: pullFromGithub, autoSync: autoSync };

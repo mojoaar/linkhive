@@ -156,6 +156,11 @@ If you find LinkHive useful, consider [buying me a coffee](https://buymeacoffee.
 
 ## Changelog
 
+### [v0.1.5](https://github.com/mojoaar/linkhive/releases/tag/v0.1.5) — Bugfix
+
+- Fix concurrent auto-sync pushing multiple files causing 409 SHA conflicts — added sync lock with deferred queue
+- Fix 409 retry in `putFile()` — now retries up to 3 times instead of once
+
 ### [v0.1.4](https://github.com/mojoaar/linkhive/releases/tag/v0.1.4) — Bugfix
 
 - Fix 409 SHA conflict during GitHub sync — retries once with fresh SHA when file was modified concurrently
