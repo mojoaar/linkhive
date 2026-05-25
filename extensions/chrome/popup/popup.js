@@ -30,19 +30,8 @@ chrome.storage.sync.get(['githubToken', 'githubRepo', 'githubBranch'], function 
     _owner = _repo.split('/')[0];
     _branch = items.githubBranch || 'main';
     $('debugRepoText').textContent = _repo + ' (' + _branch + ')';
-    // Re-validate saved settings
-    LinkHiveExt._getFile(_token, _owner, _repo, _branch, 'data/collections.json').then(function (data) {
-      if (data && data.content) {
-        show('addView');
-        initAddView();
-      } else {
-        chrome.storage.sync.remove(['githubToken', 'githubRepo', 'githubBranch']);
-        show('setupView');
-      }
-    }).catch(function () {
-      chrome.storage.sync.remove(['githubToken', 'githubRepo', 'githubBranch']);
-      show('setupView');
-    });
+    show('addView');
+    initAddView();
   } else {
     show('setupView');
   }
