@@ -29,6 +29,7 @@ chrome.storage.sync.get(['githubToken', 'githubRepo', 'githubBranch'], function 
     _repo = items.githubRepo;
     _owner = _repo.split('/')[0];
     _branch = items.githubBranch || 'main';
+    $('debugRepoText').textContent = _repo + ' (' + _branch + ')';
     show('addView');
     initAddView();
   } else {
@@ -55,6 +56,7 @@ $('setupSave').addEventListener('click', function () {
     _repo = repo;
     _owner = parts[0];
     _branch = branch;
+    $('debugRepoText').textContent = _repo + ' (' + _branch + ')';
     status('setupStatus', 'Connected!', 'success');
     show('addView');
     initAddView();
