@@ -77,8 +77,8 @@ function initAddView() {
     }
   });
 
-  var collUrl = 'https://api.github.com/repos/' + _owner + '/' + _repo + '/contents/data/collections.json?ref=' + _branch;
-  $('debugInfo').textContent = 'Fetching collections directly...';
+  var testUrl = 'https://api.github.com/repos/' + _owner + '/' + _repo + '/contents/?ref=' + _branch;
+  $('debugInfo').textContent = 'Fetching repo root contents...';
 
   var xhr = new XMLHttpRequest();
   xhr.open('GET', collUrl, true);
