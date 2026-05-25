@@ -1,2 +1,3 @@
 config.json
+extensions/**/config.js
 .DS_Store

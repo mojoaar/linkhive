@@ -5,93 +5,35 @@ var _collections = [];
 function $(id) { return document.getElementById(id); }
 
 function show(viewId) {
-  console.log('show:', viewId);
-  $('settingsView').classList.add('hidden');
+  $('configError').classList.add('hidden');
   $('addView').classList.add('hidden');
   $(viewId).classList.remove('hidden');
 }
 
 function status(elId, msg, type) {
-  console.log('status:', elId, msg, type);
   var s = $(elId);
-  if (!s) { console.error('Element not found:', elId); return; }
+  if (!s) return;
   s.textContent = msg;
   s.className = 'status ' + (type || '');
 }
 
-console.log('popup.js loaded');
+// ─── Init ──────────────────────────────────────────────
 
-// ─── Debug: show localStorage ─────────────────────────
-
-var dbg = $('debugStorage');
-function updateDebug() {
-  if (!dbg) return;
-  try {
-    var raw = localStorage.getItem('linkhive_ext_settings');
-    dbg.textContent = 'localStorage: ' + (raw ? raw.slice(0, 80) : 'EMPTY');
-    console.log('DEBUG localStorage:', raw);
-  } catch(e) {
-    dbg.textContent = 'localStorage ERROR: ' + e.message;
-    console.error('DEBUG localStorage error:', e);
-  }
-}
-updateDebug();
-
-// ─── Settings ──────────────────────────────────────────
-
-console.log('Checking storage...');
-LinkHiveExt.settings.get().then(function (cfg) {
-  console.log('Storage result:', cfg);
-  updateDebug();
-  if (cfg.githubToken && cfg.githubRepo) {
-    initAddView(cfg);
-  } else {
-    show('settingsView');
-  }
-}).catch(function (e) {
-  console.error('Storage error:', e);
-  show('settingsView');
-});
-
-console.log('Attaching settings save listener...');
-var saveBtn = $('settingsSave');
-console.log('Save button:', saveBtn);
-if (saveBtn) {
-  saveBtn.addEventListener('click', function () {
-    console.log('Save clicked');
-    var token = $('settingsToken').value.trim();
-    var repo = $('settingsRepo').value.trim();
-    var branch = $('settingsBranch').value.trim() || 'main';
-    console.log('Token:', token ? '***' + token.slice(-4) : 'empty', 'Repo:', repo);
-    if (!token || !repo) { status('settingsStatus', 'Token and repo required', 'error'); return; }
-    var parts = repo.split('/');
-    if (parts.length !== 2) { status('settingsStatus', 'Use owner/repo format', 'error'); return; }
-    status('settingsStatus', 'Validating...', '');
-    LinkHiveExt._getFile(token, parts[0], parts[1], branch, 'data/index.json').then(function () {
-      console.log('GitHub validation OK, saving settings');
-      return LinkHiveExt.settings.save(token, repo, branch);
-    }).then(function () {
-      console.log('Settings saved');
-      updateDebug();
-      return LinkHiveExt.settings.get();
-    }).then(function (cfg) {
-      console.log('Settings re-loaded, showing add view');
-      show('addView');
-      initAddView(cfg);
-    }).catch(function (e) {
-      console.error('Validation failed:', e);
-      status('settingsStatus', 'Cannot access repo. Check token + repo name.', 'error');
-    });
-  });
+if (!LinkHiveExt.config || !LinkHiveExt.config.token) {
+  show('configError');
+  status('configMsg', 'Create extensions/shared/config.js with your GitHub token.', 'error');
 } else {
-  console.error('Save button not found!');
+  show('addView');
+  initAddView();
 }
 
 // ─── Add Link View ─────────────────────────────────────
 
-function initAddView(cfg) {
-  var parts = cfg.githubRepo.split('/');
-  var owner = parts[0], repo = parts[1], branch = cfg.githubBranch || 'main';
+function initAddView() {
+  var token = LinkHiveExt.token;
+  var owner = LinkHiveExt.repo.split('/')[0];
+  var repo = LinkHiveExt.repo.split('/')[1];
+  var branch = LinkHiveExt.branch;
 
   // Collect tab info
   try {
@@ -105,12 +47,10 @@ function initAddView(cfg) {
         }
       });
     }
-  } catch(e) {
-    console.warn('Could not get active tab:', e);
-  }
+  } catch(e) {}
 
   // Fetch collections from GitHub
-  LinkHiveExt.fetchCollections(cfg.githubToken, owner, repo, branch).then(function (cols) {
+  LinkHiveExt.fetchCollections(token, owner, repo, branch).then(function (cols) {
     _collections = cols;
     var sel = $('linkCollection');
     sel.innerHTML = '<option value="">No collection</option>';
@@ -141,12 +81,11 @@ function initAddView(cfg) {
     var collection = _collections.find(function (c) { return c.id === collectionId; });
     var link = LinkHiveExt.makeLink(url, title, desc, collectionId, collection ? collection.slug : '', tags);
 
-    // Check duplicate
-    LinkHiveExt.fetchLinks(cfg.githubToken, owner, repo, branch).then(function (links) {
+    LinkHiveExt.fetchLinks(token, owner, repo, branch).then(function (links) {
       if (LinkHiveExt.isDuplicate(url, links)) {
         status('linkStatus', 'Link already exists — saving anyway', '');
       }
-      return LinkHiveExt.addLink(cfg.githubToken, owner, repo, branch, link, _collections);
+      return LinkHiveExt.addLink(token, owner, repo, branch, link, _collections);
     }).then(function () {
       status('linkStatus', 'Saved!', 'success');
       btn.textContent = 'Saved ✓';
@@ -158,16 +97,5 @@ function initAddView(cfg) {
     });
   };
 }
-
-// ─── Settings button in add view ───────────────────────
-
-$('btnSettings').addEventListener('click', function () {
-  LinkHiveExt.settings.get().then(function (cfg) {
-    $('settingsToken').value = cfg.githubToken || '';
-    $('settingsRepo').value = cfg.githubRepo || '';
-    $('settingsBranch').value = cfg.githubBranch || 'main';
-    show('settingsView');
-  });
-});
 
 })();

@@ -6,30 +6,16 @@
 <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-<div id="settingsView" class="view">
+<div id="configError" class="view">
   <h1>LinkHive</h1>
   <p class="tagline">Never lose a link again</p>
-  <div class="field">
-    <label>GitHub Token</label>
-    <input type="password" id="settingsToken" placeholder="ghp_...">
-  </div>
-  <div class="field">
-    <label>Repository</label>
-    <input type="text" id="settingsRepo" placeholder="owner/repo-name">
-  </div>
-  <div class="field">
-    <label>Branch</label>
-    <input type="text" id="settingsBranch" placeholder="main" value="main">
-  </div>
-  <button id="settingsSave">Save &amp; Connect</button>
-  <p class="status" id="settingsStatus"></p>
-  <p class="status" id="debugStorage" style="font-size:9px;color:#888;word-break:break-all"></p>
+  <p class="status error" id="configMsg">Config not found.</p>
+  <p style="font-size:11px;color:#656d76">Create <code>extensions/shared/config.js</code> with your GitHub credentials.</p>
 </div>
 
 <div id="addView" class="view hidden">
   <div class="header-bar">
     <h1>Add to LinkHive</h1>
-    <button id="btnSettings" class="btn-icon" title="Settings" aria-label="Settings">&#9881;</button>
   </div>
   <div class="field">
     <label>URL</label>
@@ -55,6 +41,9 @@
   <p class="status" id="linkStatus"></p>
 </div>
 
-<script src="popup-bundle.js"></script>
+<script src="../shared/config.js"></script>
+<script src="../shared/data-model.js"></script>
+<script src="../shared/github.js"></script>
+<script src="popup.js"></script>
 </body>
 </html>
