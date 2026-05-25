@@ -74,7 +74,11 @@ function initAddView() {
     }
   });
 
+  var apiUrl = LinkHiveExt._apiUrl(_owner, _repo, 'data/collections.json') + '?ref=' + _branch;
+  $('debugInfo').textContent = 'Fetching: ' + apiUrl;
+
   LinkHiveExt.fetchCollections(_token, _owner, _repo, _branch).then(function (cols) {
+    $('debugInfo').textContent = 'Collections found: ' + (cols ? cols.length : 0);
     _collections = cols;
     var sel = $('linkCollection');
     sel.innerHTML = '<option value="">No collection</option>';
@@ -85,7 +89,8 @@ function initAddView() {
       $('collHint').classList.remove('hidden');
     }
   }).catch(function (e) {
-    status('linkStatus', 'Failed to load collections: ' + (e.message || 'unknown'), 'error');
+    $('debugInfo').textContent = 'Error: ' + (e.message || 'unknown');
+    status('linkStatus', 'Failed to load collections', 'error');
   });
 
   $('linkSave').onclick = function () {
