@@ -92,24 +92,28 @@ LinkHive.GitHubClient = (function () {
     });
 
     function _retry409(path, b64content, branch, remaining) {
-      return self.getFile(path).catch(function () { return null; }).then(function (fresh) {
-        var retryBody = {
-          message: 'Update ' + path,
-          content: b64content,
-          branch: branch
-        };
-        if (fresh) retryBody.sha = fresh.sha;
-        return fetch(self._apiUrl(path), {
-          method: 'PUT',
-          headers: self._headers(),
-          body: JSON.stringify(retryBody)
-        }).then(function (r) {
-          if (r.status === 409 && remaining > 0) {
-            return _retry409(path, content, branch, remaining - 1);
-          }
-          if (!r.ok) throw new Error('GitHub API error: ' + r.status);
-          return r.json();
-        });
+      return new Promise(function (resolveRetry) {
+        setTimeout(function () {
+          resolveRetry(self.getFile(path).catch(function () { return null; }).then(function (fresh) {
+            var retryBody = {
+              message: 'Update ' + path,
+              content: b64content,
+              branch: branch
+            };
+            if (fresh) retryBody.sha = fresh.sha;
+            return fetch(self._apiUrl(path), {
+              method: 'PUT',
+              headers: self._headers(),
+              body: JSON.stringify(retryBody)
+            }).then(function (r) {
+              if ((r.status === 409 || r.status === 422) && remaining > 0) {
+                return _retry409(path, b64content, branch, remaining - 1);
+              }
+              if (!r.ok) throw new Error('GitHub API error: ' + r.status);
+              return r.json();
+            });
+          }));
+        }, 1000);
       });
     };
 
