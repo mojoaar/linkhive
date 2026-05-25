@@ -1,8 +1,5 @@
 var LinkHiveExt = LinkHiveExt || {};
 
-LinkHiveExt.REPO = 'mojoaar/linkhive';
-LinkHiveExt.BRANCH = 'main';
-
 LinkHiveExt.makeLink = function (url, title, description, collectionId, collectionSlug, tags) {
   return {
     id: 'lh_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 9),
@@ -23,4 +20,9 @@ LinkHiveExt.makeLink = function (url, title, description, collectionId, collecti
 LinkHiveExt.isDuplicate = function (url, links) {
   var u = url.replace(/\/$/, '').toLowerCase();
   return links.some(function (l) { return l.url && l.url.replace(/\/$/, '').toLowerCase() === u; });
+};
+
+LinkHiveExt.findLinkByUrl = function (url, links) {
+  var u = url.replace(/\/$/, '').toLowerCase();
+  return links.find(function (l) { return l.url && l.url.replace(/\/$/, '').toLowerCase() === u; });
 };

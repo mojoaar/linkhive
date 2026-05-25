@@ -56,6 +56,31 @@ LinkHiveExt.addLink = function (token, owner, repo, branch, link, collections) {
   });
 };
 
+LinkHiveExt.updateLink = function (token, owner, repo, branch, url, updates) {
+  return LinkHiveExt._getFile(token, owner, repo, branch, 'data/index.json').then(function (index) {
+    if (!index || !index.content || !index.content.chunks) throw new Error('No data found');
+    var chunkPromises = [];
+    for (var i = 0; i < index.content.chunks; i++) {
+      chunkPromises.push(LinkHiveExt._getFile(token, owner, repo, branch, 'data/links-' + i + '.json'));
+    }
+    return Promise.all(chunkPromises).then(function (chunks) {
+      for (var c = 0; c < chunks.length; c++) {
+        var chunk = chunks[c];
+        if (!chunk || !chunk.content) continue;
+        for (var l = 0; l < chunk.content.length; l++) {
+          var existing = chunk.content[l];
+          if (existing.url && existing.url.replace(/\/$/, '').toLowerCase() === url.replace(/\/$/, '').toLowerCase()) {
+            for (var key in updates) { existing[key] = updates[key]; }
+            existing.updatedAt = new Date().toISOString();
+            return LinkHiveExt._putFile(token, owner, repo, branch, 'data/links-' + c + '.json', chunk.content, chunk.sha);
+          }
+        }
+      }
+      throw new Error('Link not found');
+    });
+  });
+};
+
 LinkHiveExt._apiUrl = function (owner, repo, path) {
   return LinkHiveExt.GITHUB_API + '/repos/' + owner + '/' + repo + '/contents/' + path;
 };

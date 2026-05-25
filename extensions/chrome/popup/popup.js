@@ -75,12 +75,17 @@ $('setupSave').addEventListener('click', function () {
 
 function initAddView() {
   var _repoName = _repo.split('/')[1];
+  var _tabUrl = '';
+  var _tabTitle = '';
 
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     var tab = tabs && tabs[0];
     if (tab) {
-      $('linkUrl').value = tab.url || '';
-      $('linkTitle').value = tab.title || '';
+      _tabUrl = tab.url || '';
+      _tabTitle = tab.title || '';
+      $('linkUrl').value = _tabUrl;
+      $('linkTitle').value = _tabTitle;
+      checkExistingLink();
     }
   });
 
@@ -98,14 +103,32 @@ function initAddView() {
     status('linkStatus', 'Failed to load collections', 'error');
   });
 
+  var _existingLink = null;
+
+  function checkExistingLink() {
+    if (!_tabUrl) return;
+    LinkHiveExt.fetchLinks(_token, _owner, _repoName, _branch).then(function (links) {
+      var found = LinkHiveExt.findLinkByUrl(_tabUrl, links);
+      if (found) {
+        _existingLink = found;
+        $('linkTitle').value = found.title || '';
+        $('linkDesc').value = found.description || '';
+        $('linkTags').value = (found.tags || []).join(', ');
+        if (found.collectionId) { $('linkCollection').value = found.collectionId; }
+        $('linkSave').textContent = 'Update Link';
+      }
+    }).catch(function () {});
+  }
+
   $('linkSave').onclick = function () {
     var btn = $('linkSave');
     btn.disabled = true;
-    btn.textContent = 'Saving...';
+    var savingText = _existingLink ? 'Updating...' : 'Saving...';
+    btn.textContent = savingText;
     status('linkStatus', '', '');
 
     var url = $('linkUrl').value.trim();
-    if (!url) { status('linkStatus', 'URL is required', 'error'); btn.disabled = false; btn.textContent = 'Save Link'; return; }
+    if (!url) { status('linkStatus', 'URL is required', 'error'); btn.disabled = false; btn.textContent = _existingLink ? 'Update Link' : 'Save Link'; return; }
     if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
 
     var title = $('linkTitle').value.trim();
@@ -114,22 +137,35 @@ function initAddView() {
     var tags = $('linkTags').value.split(',').map(function (t) { return t.trim(); }).filter(Boolean);
 
     var collection = _collections.find(function (c) { return c.id === collectionId; });
-    var link = LinkHiveExt.makeLink(url, title, desc, collectionId, collection ? collection.slug : '', tags);
 
-    LinkHiveExt.fetchLinks(_token, _owner, _repoName, _branch).then(function (links) {
-      if (LinkHiveExt.isDuplicate(url, links)) {
-        status('linkStatus', 'Link already exists — saving anyway', '');
-      }
-      return LinkHiveExt.addLink(_token, _owner, _repoName, _branch, link, _collections);
-    }).then(function () {
-      status('linkStatus', 'Saved!', 'success');
-      btn.textContent = 'Saved ✓';
-      setTimeout(function () { window.close(); }, 800);
-    }).catch(function (err) {
-      status('linkStatus', 'Failed: ' + (err.message || 'unknown'), 'error');
-      btn.disabled = false;
-      btn.textContent = 'Save Link';
-    });
+    if (_existingLink) {
+      LinkHiveExt.updateLink(_token, _owner, _repoName, _branch, url, {
+        title: title,
+        description: desc,
+        collectionId: collectionId,
+        collectionSlug: collection ? collection.slug : '',
+        tags: tags
+      }).then(function () {
+        status('linkStatus', 'Updated!', 'success');
+        btn.textContent = 'Updated ✓';
+        setTimeout(function () { window.close(); }, 800);
+      }).catch(function (err) {
+        status('linkStatus', 'Failed: ' + (err.message || 'unknown'), 'error');
+        btn.disabled = false;
+        btn.textContent = 'Update Link';
+      });
+    } else {
+      var link = LinkHiveExt.makeLink(url, title, desc, collectionId, collection ? collection.slug : '', tags);
+      LinkHiveExt.addLink(_token, _owner, _repoName, _branch, link, _collections).then(function () {
+        status('linkStatus', 'Saved!', 'success');
+        btn.textContent = 'Saved ✓';
+        setTimeout(function () { window.close(); }, 800);
+      }).catch(function (err) {
+        status('linkStatus', 'Failed: ' + (err.message || 'unknown'), 'error');
+        btn.disabled = false;
+        btn.textContent = 'Save Link';
+      });
+    }
   };
 }
 

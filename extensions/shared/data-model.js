@@ -21,3 +21,8 @@ LinkHiveExt.isDuplicate = function (url, links) {
   var u = url.replace(/\/$/, '').toLowerCase();
   return links.some(function (l) { return l.url && l.url.replace(/\/$/, '').toLowerCase() === u; });
 };
+
+LinkHiveExt.findLinkByUrl = function (url, links) {
+  var u = url.replace(/\/$/, '').toLowerCase();
+  return links.find(function (l) { return l.url && l.url.replace(/\/$/, '').toLowerCase() === u; });
+};
