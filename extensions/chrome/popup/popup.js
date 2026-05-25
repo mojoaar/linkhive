@@ -77,7 +77,26 @@ function initAddView() {
     }
   });
 
-  $('debugInfo').textContent = 'Loading collections...';
+  var treeUrl = 'https://api.github.com/repos/' + _owner + '/' + _repo + '/git/trees/' + _branch + '?recursive=1';
+  $('debugInfo').textContent = 'Loading...';
+  var txhr = new XMLHttpRequest();
+  txhr.open('GET', treeUrl, true);
+  txhr.setRequestHeader('Authorization', 'token ' + _token);
+  txhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+  txhr.onload = function () {
+    try {
+      var d = JSON.parse(txhr.responseText || '{}');
+      if (d.tree) {
+        var files = d.tree.filter(function(f) { return f.path.indexOf('collections') >= 0; });
+        $('debugInfo').textContent = 'Tree: ' + txhr.status + ', collections files: ' + (files.length ? files.map(function(f){return f.path;}).join(', ') : 'NONE found') + ' (total: ' + d.tree.length + ' items)';
+      } else {
+        $('debugInfo').textContent = 'Tree ' + txhr.status + ': ' + (d.message || '?');
+      }
+    } catch(e) { $('debugInfo').textContent = 'Tree error: ' + e.message; }
+  };
+  txhr.onerror = function () { $('debugInfo').textContent = 'Tree XHR error'; };
+  txhr.send();
+
   LinkHiveExt.fetchCollections(_token, _owner, _repo, _branch).then(function (cols) {
     $('debugInfo').textContent = ($('debugInfo').textContent || '') + ' | parsed: ' + (cols ? cols.length : 0);
     _collections = cols;
