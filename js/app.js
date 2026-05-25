@@ -252,9 +252,15 @@ LinkHive.App = (function () {
 LinkHive.Sync = (function () {
   function pushToGithub() {
     var config = LinkHive.Config.get();
-    if (!config || !config.githubToken || !config.githubRepo) return Promise.reject(new Error('not configured'));
+    if (!config || !config.githubToken || !config.githubRepo) {
+      LinkHive.Toast.show('GitHub not configured. Set up in Settings.', 'error');
+      return Promise.reject(new Error('not configured'));
+    }
     var parts = config.githubRepo.split('/');
-    if (parts.length !== 2) return Promise.reject(new Error('invalid repo'));
+    if (parts.length !== 2) {
+      LinkHive.Toast.show('Invalid repo format. Use owner/repo-name.', 'error');
+      return Promise.reject(new Error('invalid repo'));
+    }
     var client = new LinkHive.GitHubClient(config.githubToken, parts[0], parts[1], config.githubBranch);
     LinkHive.Toast.show('Syncing to GitHub...', '');
 
@@ -369,9 +375,28 @@ LinkHive.Toast = (function () {
     if (!container) init();
     var toast = document.createElement('div');
     toast.className = 'toast ' + (type || '');
-    toast.textContent = message;
+    var text = document.createElement('span');
+    text.className = 'toast-text';
+    text.textContent = message;
+    toast.appendChild(text);
+    if (type === 'error') {
+      var copyBtn = document.createElement('button');
+      copyBtn.className = 'toast-copy-btn';
+      copyBtn.innerHTML = '<i data-lucide="clipboard"></i>';
+      copyBtn.title = 'Copy error';
+      copyBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        navigator.clipboard.writeText(message).then(function () {
+          text.textContent = 'Copied!';
+          setTimeout(function () { text.textContent = message; }, 1500);
+        });
+      });
+      toast.appendChild(copyBtn);
+      window.refreshIcons(toast);
+    }
     container.appendChild(toast);
-    setTimeout(function () { toast.classList.add('removing'); setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 150); }, 3000);
+    var duration = type === 'error' ? 10000 : 3000;
+    setTimeout(function () { toast.classList.add('removing'); setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 150); }, duration);
   }
   return { init: init, show: show };
 })();
