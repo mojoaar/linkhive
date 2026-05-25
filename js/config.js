@@ -107,5 +107,15 @@ LinkHive.COLLECTION_ICONS = [
   'sunrise', 'sunset', 'moon-star', 'languages',
                       'check', 'check-check', 'badge-check', 'list-checks',
   'car-front', 'car-taxi', 'tractor', 'sailboat', 'gauge', 'steering-wheel',
-  'ambulance', 'ship', 'scooter', 'caravan'
+  'ambulance', 'ship', 'scooter', 'caravan',
+  'brackets', 'braces', 'terminal', 'git-branch', 'git-merge', 'git-pull-request',
+  'file-code', 'file-json', 'variable', 'square-code',
+  'file-archive', 'file-audio', 'file-video', 'file-search', 'file-symlink',
+  'folder-tree', 'bed', 'cooking-pot', 'armchair', 'utensils-crossed',
+  'washing-machine', 'bell-ring', 'bell-off', 'mail-open', 'mail-check',
+  'mail-warning', 'divide', 'pi', 'square-root', 'function-square',
+  'shapes', 'minus-circle', 'x-circle',
+  'shield-check', 'shield-alert', 'shield-close', 'unlock',
+  'users', 'users-round', 'user-check', 'user-x', 'user-cog',
+  'thumbs-up', 'thumbs-down', 'message-square', 'share-2'
 ];
