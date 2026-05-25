@@ -297,6 +297,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
   padding: 9px 12px;
   border-radius: var(--radius);
   color: var(--text-muted);
