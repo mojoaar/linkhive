@@ -3,7 +3,7 @@ window.LinkHive = window.LinkHive || {};
 LinkHive.VERSION = '0.1.6';
 
 LinkHive.DEFAULTS = {
-  theme: 'catppuccin',
+  theme: 'catppuccin-macchiato',
   mode: 'dark',
   defaultView: 'list',
   defaultSort: 'newest',
