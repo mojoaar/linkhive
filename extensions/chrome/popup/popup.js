@@ -76,13 +76,20 @@ function initAddView(cfg) {
   var owner = parts[0], repo = parts[1], branch = cfg.githubBranch || 'main';
 
   // Collect tab info
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    var tab = tabs[0];
-    if (tab) {
-      $('linkUrl').value = tab.url || '';
-      $('linkTitle').value = tab.title || '';
+  try {
+    var tabsApi = chrome && chrome.tabs ? chrome.tabs : (browser && browser.tabs ? browser.tabs : null);
+    if (tabsApi) {
+      tabsApi.query({ active: true, currentWindow: true }, function (tabs) {
+        var tab = tabs && tabs[0];
+        if (tab) {
+          $('linkUrl').value = tab.url || '';
+          $('linkTitle').value = tab.title || '';
+        }
+      });
     }
-  });
+  } catch(e) {
+    console.warn('Could not get active tab:', e);
+  }
 
   // Fetch collections from GitHub
   LinkHiveExt.fetchCollections(cfg.githubToken, owner, repo, branch).then(function (cols) {
