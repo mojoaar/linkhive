@@ -23,6 +23,12 @@ function status(elId, msg, type) {
 
 // ─── Init ──────────────────────────────────────────────
 
+if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  chrome.action.setIcon({ path: { 16: 'icons/icon-16-dark.png', 48: 'icons/icon-48-dark.png', 128: 'icons/icon-128-dark.png' } });
+} else {
+  chrome.action.setIcon({ path: { 16: 'icons/icon-16.png', 48: 'icons/icon-48.png', 128: 'icons/icon-128.png' } });
+}
+
 chrome.storage.sync.get(['githubToken', 'githubRepo', 'githubBranch'], function (items) {
   if (items.githubToken && items.githubRepo) {
     _token = items.githubToken;
