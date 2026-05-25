@@ -156,6 +156,10 @@ If you find LinkHive useful, consider [buying me a coffee](https://buymeacoffee.
 
 ## Changelog
 
+### [v0.1.1](https://github.com/mojoaar/linkhive/releases/tag/v0.1.1) — Bugfix
+
+- Fix IndexedDB transaction error ("transaction is inactive or finished") during GitHub pull on first onboarding. Rewrote `importData()` to use a single transaction spanning both object stores instead of two async-nested transactions.
+
 ### [v0.1.0](https://github.com/mojoaar/linkhive/releases/tag/v0.1.0) — Initial Release
 
 - Client-side link manager with IndexedDB storage

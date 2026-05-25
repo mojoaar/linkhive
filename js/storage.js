@@ -225,25 +225,22 @@ LinkHive.LocalBackend.prototype.importData = function (jsonStr) {
   var data;
   try { data = JSON.parse(jsonStr); } catch (e) { return Promise.reject(new Error('Invalid JSON')); }
   if (!data.collections || !data.links) return Promise.reject(new Error('Invalid data format'));
-  return self._tx('collections', 'readwrite').then(function (cStore) {
-    return self._tx('links', 'readwrite').then(function (lStore) {
-      if (self._isMem(cStore)) {
-        cStore._memoryDb.collections = data.collections;
-        lStore._memoryDb.links = data.links;
-        return;
-      }
-      return Promise.all([
-        new Promise(function (resolve) { cStore.clear().onsuccess = resolve; }),
-        new Promise(function (resolve) { lStore.clear().onsuccess = resolve; })
-      ]).then(function () {
-        return Promise.all(
-          data.collections.map(function (c) {
-            return new Promise(function (resolve) { cStore.put(c).onsuccess = resolve; });
-          }).concat(data.links.map(function (l) {
-            return new Promise(function (resolve) { lStore.put(l).onsuccess = resolve; });
-          }))
-        );
-      });
+  return self._openDb().then(function (db) {
+    if (self._useMemory) {
+      self._getMemoryDb().collections = data.collections;
+      self._getMemoryDb().links = data.links;
+      return;
+    }
+    return new Promise(function (resolve, reject) {
+      var tx = db.transaction(['collections', 'links'], 'readwrite');
+      var cStore = tx.objectStore('collections');
+      var lStore = tx.objectStore('links');
+      cStore.clear();
+      lStore.clear();
+      data.collections.forEach(function (c) { cStore.put(c); });
+      data.links.forEach(function (l) { lStore.put(l); });
+      tx.oncomplete = resolve;
+      tx.onerror = function () { reject(new Error('Failed to import data')); };
     });
   });
 };
