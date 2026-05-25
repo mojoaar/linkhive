@@ -94,7 +94,7 @@ LinkHive.GitHubClient = (function () {
     function _retry409(path, b64content, branch, remaining) {
       return new Promise(function (resolveRetry) {
         setTimeout(function () {
-          resolveRetry(self.getFile(path).catch(function () { return null; }).then(function (fresh) {
+          resolveRetry(self.getFile(path).then(function (fresh) {
             var retryBody = {
               message: 'Update ' + path,
               content: b64content,
@@ -112,6 +112,9 @@ LinkHive.GitHubClient = (function () {
               if (!r.ok) throw new Error('GitHub API error: ' + r.status);
               return r.json();
             });
+          }).catch(function (e) {
+            if (typeof e.message === 'string' && e.message.indexOf('404') !== -1) return;
+            throw e;
           }));
         }, 1000);
       });

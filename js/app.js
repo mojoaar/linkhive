@@ -296,11 +296,14 @@ LinkHive.Sync = (function () {
     };
 
     var pushFile = function (path, data) {
-      return client.getFile(path).catch(function () { return null; }).then(function (existing) {
+      return client.getFile(path).then(function (existing) {
         var json = JSON.stringify(data);
         return client.putFile(path, data, existing ? existing.sha : undefined).catch(function (e) {
           throw new Error(path + ': ' + (e.message || 'error') + ' (' + Math.round(json.length / 1024) + 'KB)');
         });
+      }).catch(function (e) {
+        if (e.message && e.message.indexOf('404') !== -1) return;
+        throw new Error(path + ': ' + (e.message || 'error') + ' (getFile)');
       });
     };
 
