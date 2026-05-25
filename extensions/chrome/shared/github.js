@@ -86,26 +86,21 @@ LinkHiveExt._apiUrl = function (owner, repo, path) {
 };
 
 LinkHiveExt._getFile = function (token, owner, repo, branch, path) {
-  return new Promise(function (resolve, reject) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', LinkHiveExt._apiUrl(owner, repo, path) + '?ref=' + branch, true);
-    xhr.setRequestHeader('Authorization', 'token ' + token);
-    xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
-    xhr.timeout = 30000;
-    xhr.ontimeout = function () { reject(new Error('Request timed out')); };
-    xhr.onload = function () {
-      if (xhr.status === 404) { resolve(null); return; }
-      if (xhr.status !== 200) { reject(new Error('GitHub API error: ' + xhr.status)); return; }
-      try {
-        var d = JSON.parse(xhr.responseText);
-        var raw = atob(d.content.replace(/\s/g, ''));
-        var buf = new Uint8Array(raw.length);
-        for (var i = 0; i < raw.length; i++) { buf[i] = raw.charCodeAt(i); }
-        resolve({ path: d.path, sha: d.sha, content: JSON.parse(new TextDecoder().decode(buf)) });
-      } catch (e) { reject(e); }
-    };
-    xhr.onerror = function () { reject(new Error('Network error')); };
-    xhr.send();
+  return fetch(LinkHiveExt._apiUrl(owner, repo, path) + '?ref=' + branch, {
+    headers: {
+      'Authorization': 'token ' + token,
+      'Accept': 'application/vnd.github.v3+json'
+    }
+  }).then(function (res) {
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error('GitHub API error: ' + res.status);
+    return res.json();
+  }).then(function (d) {
+    if (!d) return null;
+    var raw = atob(d.content.replace(/\s/g, ''));
+    var buf = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) { buf[i] = raw.charCodeAt(i); }
+    return { path: d.path, sha: d.sha, content: JSON.parse(new TextDecoder('utf-8').decode(buf)) };
   });
 };
 
@@ -117,19 +112,16 @@ LinkHiveExt._putFile = function (token, owner, repo, branch, path, content, sha)
   for (var i = 0; i < bytes.length; i++) { binary += String.fromCharCode(bytes[i]); }
   var body = { message: 'Update ' + path, content: btoa(binary), branch: branch };
   if (sha) body.sha = sha;
-  return new Promise(function (resolve, reject) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('PUT', LinkHiveExt._apiUrl(owner, repo, path), true);
-    xhr.setRequestHeader('Authorization', 'token ' + token);
-    xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.timeout = 30000;
-    xhr.ontimeout = function () { reject(new Error('Request timed out')); };
-    xhr.onload = function () {
-      if (xhr.status !== 200 && xhr.status !== 201) { reject(new Error('GitHub API error: ' + xhr.status)); return; }
-      try { resolve(JSON.parse(xhr.responseText)); } catch (e) { reject(e); }
-    };
-    xhr.onerror = function () { reject(new Error('Network error')); };
-    xhr.send(JSON.stringify(body));
+  return fetch(LinkHiveExt._apiUrl(owner, repo, path), {
+    method: 'PUT',
+    headers: {
+      'Authorization': 'token ' + token,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  }).then(function (res) {
+    if (!res.ok) throw new Error('GitHub API error: ' + res.status);
+    return res.json();
   });
 };
