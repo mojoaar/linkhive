@@ -65,7 +65,7 @@ LinkHiveExt.settings = {
     });
   }
 };
-var LinkHiveExt = {};
+var LinkHiveExt = LinkHiveExt || {};
 
 LinkHiveExt.GITHUB_API = 'https://api.github.com';
 
