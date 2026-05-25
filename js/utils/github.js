@@ -85,27 +85,17 @@ LinkHive.GitHubClient = (function () {
       body: JSON.stringify(body)
     }).then(function (res) {
       if (res.status === 409 && sha) {
-        return _retry409(path, content, body.branch, 2);
+        return _retry409(path, body.content, body.branch, 2);
       }
       if (!res.ok) throw new Error('GitHub API error: ' + res.status);
       return res.json();
     });
 
-    function _retry409(path, content, branch, remaining) {
+    function _retry409(path, b64content, branch, remaining) {
       return self.getFile(path).then(function (fresh) {
         var retryBody = {
           message: 'Update ' + path,
-          content: btoa(String.fromCharCode.apply(null, (function () {
-            var jsonStr = JSON.stringify(content);
-            var b = [];
-            for (var i = 0; i < jsonStr.length; i++) {
-              var c = jsonStr.charCodeAt(i);
-              if (c < 128) { b.push(c); }
-              else if (c < 2048) { b.push(192 | (c >> 6)); b.push(128 | (c & 63)); }
-              else { b.push(224 | (c >> 12)); b.push(128 | ((c >> 6) & 63)); b.push(128 | (c & 63)); }
-            }
-            return b;
-          })())),
+          content: b64content,
           branch: branch
         };
         if (fresh) retryBody.sha = fresh.sha;
