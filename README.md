@@ -12,10 +12,11 @@
 - **Client-side only** — no server, no database, no signup. Everything stays in your browser
 - **Offline-first** — full PWA with service worker caching. Works without internet
 - **GitHub sync** — back up your links to a private GitHub repo (PAT auth)
+- **Chrome extension** — save links from any tab via `Cmd+Shift+L` with collection support
 - **Collections** — organize links with custom icons, colors, and names
 - **Tags** — full tag system with search and filtering
 - **Rich import** — import from Raindrop.io CSV exports (auto-creates collections)
-- **Dark & light themes** — Catppuccin, Dracula, Nord — all with light and dark variants
+- **Dark & light themes** — Catppuccin (Macchiato, Latte, Frappé, Mocha), Dracula, GitHub, Nord, One Dark, Tokyo Night
 - **Server config** — deploy with `config.json` for pre-configured GitHub sync
 - **Responsive** — works great on desktop, tablet, and mobile
 - **Zero dependencies** — pure HTML, CSS, and JavaScript. No npm, no build step
