@@ -964,6 +964,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-bottom: 0;
 }
 
 .link-grid.list-view .link-card-tags {
@@ -987,7 +988,6 @@
   color: var(--text-faint);
   flex-shrink: 0;
   white-space: nowrap;
-  margin-top: 1px;
 }
 
 .link-grid.list-view .link-card-meta-dot {

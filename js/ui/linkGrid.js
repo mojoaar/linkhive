@@ -292,7 +292,6 @@ LinkHive.LinkGrid = (function () {
         '<div class="link-card-header-text">' +
           '<h3 class="link-card-title">' + LinkHive.escapeHtml(link.title || LinkHive.truncateUrl(link.url, 60)) + '</h3>' +
           '<div class="link-card-url">' + LinkHive.escapeHtml(LinkHive.truncateUrl(link.url, 40)) + '</div>' +
-          (isListView && metaHtml ? metaHtml : '') +
         '</div>' +
         (isListView ? '<div class="link-card-actions list-actions">' +
           '<button class="link-card-action edit" data-link-id="' + link.id + '" aria-label="Edit">' +
@@ -308,7 +307,7 @@ LinkHive.LinkGrid = (function () {
       '</div>' +
       descHtml +
       (isListView
-        ? (tagsHtml ? '<div class="link-card-bottom">' + tagsHtml + '</div>' : '')
+        ? ((tagsHtml || metaHtml) ? '<div class="link-card-bottom">' + tagsHtml + metaHtml + '</div>' : '')
         : '<div class="link-card-bottom">' + tagsHtml + metaHtml + '</div>') +
       (!isListView ? '<div class="link-card-footer">' +
         '<span class="link-card-date">' + LinkHive.formatDate(link.createdAt) + '</span>' +
