@@ -126,4 +126,12 @@ function initAddView() {
   };
 }
 
+$('btnSettings').addEventListener('click', function () {
+  $('setupToken').value = _token;
+  $('setupRepo').value = _repo;
+  $('setupBranch').value = _branch;
+  $('setupStatus').textContent = '';
+  show('setupView');
+});
+
 })();
