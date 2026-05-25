@@ -1,4 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <circle cx="32" cy="32" r="30" fill="#89b4fa"/>
-  <text x="32" y="44" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" fill="#ffffff" text-anchor="middle">L</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#89b4fa">
+  <circle cx="12" cy="15" r="7"/>
+  <circle cx="8" cy="11" r="5"/>
+  <circle cx="16" cy="11" r="5"/>
+  <rect x="5" y="12" width="14" height="10" rx="2"/>
 </svg>
