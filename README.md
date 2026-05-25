@@ -133,10 +133,7 @@ linkhive/
 
 ## Credits
 
-LinkHive uses icon paths derived from these open-source projects:
-
-- [**Lucide**](https://lucide.dev) — 300+ general-purpose icons ([ISC License](https://github.com/lucide-icons/lucide/blob/main/LICENSE))
-- [**Simple Icons**](https://simpleicons.org) — 55+ brand icons ([CC0 1.0](https://github.com/simple-icons/simple-icons/blob/develop/LICENSE.md))
+LinkHive uses icon paths derived from [**Lucide**](https://lucide.dev) — 300+ general-purpose icons ([ISC License](https://github.com/lucide-icons/lucide/blob/main/LICENSE)).
 
 All icons are embedded as inline SVG paths in `js/icons.js` — no external icon dependencies at runtime.
 

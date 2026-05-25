@@ -105,16 +105,7 @@ LinkHive.COLLECTION_ICONS = [
   'usb', 'vegan', 'venetian-mask', 'volleyball', 'wallpaper', 'wand', 'warehouse',
   'watch', 'waves', 'wind', 'wine-off', 'zoom-in', 'zoom-out',
   'sunrise', 'sunset', 'moon-star', 'languages',
-  'si-github', 'si-gitlab', 'si-docker', 'si-kubernetes', 'si-npm', 'si-nodejs',
-  'si-python', 'si-rust', 'si-go', 'si-postgresql',
-  'si-aws', 'si-netlify', 'si-vercel', 'si-cloudflare', 'si-digitalocean',
-  'si-heroku', 'si-flydotio', 'si-x', 'si-discord', 'si-slack', 'si-linkedin',
-  'si-reddit', 'si-instagram', 'si-spotify', 'si-twitch', 'si-tiktok',
-  'si-bluesky', 'si-figma', 'si-notion', 'si-obsidian', 'si-vscode',
-  'si-linear', 'si-raycast', 'si-stripe', 'si-paypal', 'si-gumroad',
-  'si-openai', 'si-anthropic', 'si-signal', 'si-telegram', 'si-whatsapp',
-  'si-tesla', 'si-microsoft', 'si-servicenow', 'si-powershell', 'si-linux',
-  'si-microsoftazure', 'si-atlassian', 'si-android',
-  'check', 'check-check', 'badge-check', 'list-checks',
-  'car-front', 'car-taxi', 'tractor', 'sailboat', 'gauge', 'steering-wheel'
+                      'check', 'check-check', 'badge-check', 'list-checks',
+  'car-front', 'car-taxi', 'tractor', 'sailboat', 'gauge', 'steering-wheel',
+  'ambulance', 'ship', 'scooter', 'caravan'
 ];
