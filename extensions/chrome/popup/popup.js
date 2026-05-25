@@ -81,6 +81,9 @@ function initAddView() {
     (cols || []).forEach(function (c) {
       sel.innerHTML += '<option value="' + c.id + '">' + c.name + '</option>';
     });
+    if (!cols || cols.length === 0) {
+      $('collHint').classList.remove('hidden');
+    }
   }).catch(function () {
     status('linkStatus', 'Failed to load collections', 'error');
   });

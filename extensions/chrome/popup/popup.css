@@ -105,6 +105,7 @@ button:disabled {
 
 .status.error { color: #cf222e; }
 .status.success { color: #1a7f37; }
+.hint { font-size: 10px; color: #656d76; margin-top: 3px; }
 
 @media (prefers-color-scheme: dark) {
   body { color: #cdd6f4; background: #1e1e2e; }
