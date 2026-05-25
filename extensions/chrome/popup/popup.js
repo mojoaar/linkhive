@@ -79,12 +79,12 @@ function initAddView() {
 
   var userUrl = 'https://api.github.com/user';
   var repoUrl = 'https://api.github.com/repos/' + _owner + '/' + _repo;
-  $('debugInfo').textContent = 'Testing token...';
+  $('debugInfo').textContent = 'Testing Bearer token...';
 
   function xhrGet(url, label, cb) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
-    xhr.setRequestHeader('Authorization', 'token ' + _token);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + _token);
     xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
     xhr.onload = function () {
       var d = JSON.parse(xhr.responseText || '{}');
@@ -99,6 +99,19 @@ function initAddView() {
     if (userStatus === 200) {
       $('debugInfo').textContent = 'Token OK (' + (userData.login || '?') + '). Checking repo...';
       xhrGet(repoUrl, 'repo');
+    } else {
+      $('debugInfo').textContent = '/user returned ' + userStatus + ' — trying token prefix...';
+      // Also try with 'token' prefix
+      var xhr2 = new XMLHttpRequest();
+      xhr2.open('GET', userUrl, true);
+      xhr2.setRequestHeader('Authorization', 'token ' + _token);
+      xhr2.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+      xhr2.onload = function () {
+        var d2 = JSON.parse(xhr2.responseText || '{}');
+        $('debugInfo').textContent = 'token prefix /user ' + xhr2.status + ': ' + (d2.login || d2.message || '?');
+      };
+      xhr2.onerror = function () { $('debugInfo').textContent = 'token prefix error'; };
+      xhr2.send();
     }
   });
 
