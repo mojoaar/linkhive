@@ -271,17 +271,11 @@ LinkHive.Sync = (function () {
     return _pushToGithub().then(function () {
       LinkHive.Toast.show('Synced to GitHub', 'success');
       _syncing = false;
-      if (_syncPending) {
-        _syncPending = false;
-        _doPush().catch(function () {});
-      }
+      if (_syncPending) { _syncPending = false; autoSync(); }
     }).catch(function (err) {
       LinkHive.Toast.show('Sync failed: ' + (err.message || 'error'), 'error');
       _syncing = false;
-      if (_syncPending) {
-        _syncPending = false;
-        _doPush().catch(function () {});
-      }
+      if (_syncPending) { _syncPending = false; autoSync(); }
     });
   }
 
