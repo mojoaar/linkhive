@@ -297,8 +297,9 @@ LinkHive.Sync = (function () {
 
     var pushFile = function (path, data) {
       return client.getFile(path).catch(function () { return null; }).then(function (existing) {
+        var json = JSON.stringify(data);
         return client.putFile(path, data, existing ? existing.sha : undefined).catch(function (e) {
-          throw new Error((e.message || 'error') + ' (' + path + ')');
+          throw new Error(path + ': ' + (e.message || 'error') + ' (' + Math.round(json.length / 1024) + 'KB)');
         });
       });
     };

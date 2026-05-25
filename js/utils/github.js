@@ -85,14 +85,14 @@ LinkHive.GitHubClient = (function () {
       body: JSON.stringify(body)
     }).then(function (res) {
       if (res.status === 409 && sha) {
-        return _retry409(path, body.content, body.branch, 2);
+        return _retry409(path, body.content, body.branch, 4);
       }
       if (!res.ok) throw new Error('GitHub API error: ' + res.status);
       return res.json();
     });
 
     function _retry409(path, b64content, branch, remaining) {
-      return self.getFile(path).then(function (fresh) {
+      return self.getFile(path).catch(function () { return null; }).then(function (fresh) {
         var retryBody = {
           message: 'Update ' + path,
           content: b64content,
