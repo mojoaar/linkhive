@@ -21,11 +21,28 @@ function status(elId, msg, type) {
 
 console.log('popup.js loaded');
 
+// ─── Debug: show localStorage ─────────────────────────
+
+var dbg = $('debugStorage');
+function updateDebug() {
+  if (!dbg) return;
+  try {
+    var raw = localStorage.getItem('linkhive_ext_settings');
+    dbg.textContent = 'localStorage: ' + (raw ? raw.slice(0, 80) : 'EMPTY');
+    console.log('DEBUG localStorage:', raw);
+  } catch(e) {
+    dbg.textContent = 'localStorage ERROR: ' + e.message;
+    console.error('DEBUG localStorage error:', e);
+  }
+}
+updateDebug();
+
 // ─── Settings ──────────────────────────────────────────
 
 console.log('Checking storage...');
 LinkHiveExt.settings.get().then(function (cfg) {
   console.log('Storage result:', cfg);
+  updateDebug();
   if (cfg.githubToken && cfg.githubRepo) {
     initAddView(cfg);
   } else {
@@ -55,6 +72,7 @@ if (saveBtn) {
       return LinkHiveExt.settings.save(token, repo, branch);
     }).then(function () {
       console.log('Settings saved');
+      updateDebug();
       return LinkHiveExt.settings.get();
     }).then(function (cfg) {
       console.log('Settings re-loaded, showing add view');
