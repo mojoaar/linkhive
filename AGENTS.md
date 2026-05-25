@@ -30,13 +30,11 @@
 
 ## Theme system
 
-CSS custom properties on `<html>` via `data-theme` and `data-mode` attributes. Six variants: Catppuccin, Dracula, Nord × dark/light. Theme toggle in `themes.js:toggle()` toggles `data-mode` and updates the moon/sun icon in `.theme-toggle-icon` span.
+CSS custom properties on `<html>` via `data-theme` and `data-mode` attributes. Nine themes: Catppuccin (Macchiato, Latte, Frappé, Mocha), Dracula, GitHub, Nord, One Dark, Tokyo Night — each with dark/light modes. Theme toggle in `themes.js:toggle()` toggles `data-mode` and updates the moon/sun icon in `.theme-toggle-icon` span.
 
 ## Icon system
 
 `js/icons.js` contains ~350 inline SVG paths in a `ICONS` object. `renderIcons()` replaces `[data-lucide]` elements with `<svg>` elements. No CDN, no external dependencies. To add an icon: add a path entry to `ICONS` in `icons.js`, then add the name to `COLLECTION_ICONS` in `config.js`.
-
-Brand icons use `si-` prefix (from Simple Icons, CC0).
 
 ## Link list view CSS
 
@@ -61,11 +59,21 @@ Raindrop.io CSV import uses a state-machine parser in `modals.js:parseCSV()` tha
 - No framework, no TypeScript, no JSX — vanilla JS only
 - CSS uses CSS custom properties defined in `themes.css` — never hardcode theme colors in components
 
+## Browser extension
+
+`extensions/chrome/` is a Chrome MV3 extension that saves links from any tab via `Cmd+Shift+L`. Uses a settings form (token, repo, branch) persisted via `chrome.storage.sync`. Reads/writes links and collections directly to the GitHub repo's `data/` directory. Key files:
+
+- `popup/popup.html` + `popup.js` + `popup.css` — the popup UI
+- `shared/data-model.js` — `LinkHiveExt` utilities (makeLink, isDuplicate, findLinkByUrl)
+- `shared/github.js` — `LinkHiveExt` GitHub API client (fetchCollections, fetchLinks, addLink, updateLink)
+- `icons/` — cloud icons for light and dark mode toolbars
+- `background.js` — service worker for `onInstalled` and icon switching via `onMessage`
+
 ## Versioning
 
 - **Minor releases** (`0.2.0`, `0.3.0`, ...): bump `LinkHive.VERSION` in `config.js`, update `README.md` changelog, create Git tag, push with `--tags`
 - **Patch/bugfix releases**: bump `LinkHive.VERSION` (e.g. `0.2.1`), update changelog, commit and push to `main` — **no Git tag**
-- **Bundle minor fixes**: accumulate small fixes locally. User will explicitly say when to bundle and push as the next `v0.1.X`. Do NOT increment version or push until asked.
+- **Bundle minor fixes**: accumulate small fixes locally. User will explicitly say when to bundle and push as the next `v0.2.X`. Do NOT increment version or push until asked.
 
 ## Deploy
 
