@@ -69,6 +69,8 @@ $('setupSave').addEventListener('click', function () {
 // ─── Add Link View ─────────────────────────────────────
 
 function initAddView() {
+  var _repoName = _repo.split('/')[1];
+
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     var tab = tabs && tabs[0];
     if (tab) {
@@ -77,28 +79,9 @@ function initAddView() {
     }
   });
 
-  var treeUrl = 'https://api.github.com/repos/' + _owner + '/' + _repo + '/git/trees/' + _branch + '?recursive=1';
   $('debugInfo').textContent = 'Loading...';
-  var txhr = new XMLHttpRequest();
-  txhr.open('GET', treeUrl, true);
-  txhr.setRequestHeader('Authorization', 'token ' + _token);
-  txhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
-  txhr.onload = function () {
-    try {
-      var d = JSON.parse(txhr.responseText || '{}');
-      if (d.tree) {
-        var files = d.tree.filter(function(f) { return f.path.indexOf('collections') >= 0; });
-        $('debugInfo').textContent = 'Tree: ' + txhr.status + ', collections files: ' + (files.length ? files.map(function(f){return f.path;}).join(', ') : 'NONE found') + ' (total: ' + d.tree.length + ' items)';
-      } else {
-        $('debugInfo').textContent = 'Tree ' + txhr.status + ': ' + (d.message || '?');
-      }
-    } catch(e) { $('debugInfo').textContent = 'Tree error: ' + e.message; }
-  };
-  txhr.onerror = function () { $('debugInfo').textContent = 'Tree XHR error'; };
-  txhr.send();
-
-  LinkHiveExt.fetchCollections(_token, _owner, _repo, _branch).then(function (cols) {
-    $('debugInfo').textContent = ($('debugInfo').textContent || '') + ' | parsed: ' + (cols ? cols.length : 0);
+  LinkHiveExt.fetchCollections(_token, _owner, _repoName, _branch).then(function (cols) {
+    $('debugInfo').textContent = 'Parsed: ' + (cols ? cols.length : 0) + ' collections';
     _collections = cols;
     var sel = $('linkCollection');
     sel.innerHTML = '<option value="">No collection</option>';
@@ -131,11 +114,11 @@ function initAddView() {
     var collection = _collections.find(function (c) { return c.id === collectionId; });
     var link = LinkHiveExt.makeLink(url, title, desc, collectionId, collection ? collection.slug : '', tags);
 
-    LinkHiveExt.fetchLinks(_token, _owner, _repo, _branch).then(function (links) {
+    LinkHiveExt.fetchLinks(_token, _owner, _repoName, _branch).then(function (links) {
       if (LinkHiveExt.isDuplicate(url, links)) {
         status('linkStatus', 'Link already exists — saving anyway', '');
       }
-      return LinkHiveExt.addLink(_token, _owner, _repo, _branch, link, _collections);
+      return LinkHiveExt.addLink(_token, _owner, _repoName, _branch, link, _collections);
     }).then(function () {
       status('linkStatus', 'Saved!', 'success');
       btn.textContent = 'Saved ✓';
