@@ -176,7 +176,7 @@ If you find LinkHive useful, consider [buying me a coffee](https://buymeacoffee.
 - Add Chrome extension (MV3) with settings form (token, repo, branch)
 - Add link saving with collection and tag support from the popup
 - Add existing link detection — pre-fills form with current data, button changes to "Update"
-- Add dark/light mode icon switching (blue cloud on light, white cloud on dark)
+- Add dark/light mode icon switching (black cloud on light, white cloud on dark)
 - Add pull-before-push sync — web app now merges extension-added links on sync
 - Add host_permissions for GitHub API access in Chrome MV3
 - Fix GitHub sync to merge remote data instead of overwriting
