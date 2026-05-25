@@ -171,6 +171,24 @@ If you find LinkHive useful, consider [buying me a coffee](https://buymeacoffee.
 
 ## Changelog
 
+### [v0.1.6](https://github.com/mojoaar/linkhive/releases/tag/v0.1.6) — Bugfix
+
+- Fix syntax error in `github.js` blocking sync — remove orphaned duplicate code from 409 retry edit
+- Fix sync lock deadlock — add try/catch guard around `_pushToGithub`, single lock point in `_doPush`
+- Fix duplicate `_doPush` causing infinite recursion and toast storms
+- Fix 409 SHA conflict — retry up to 4 times with 1s delays, reuse pre-encoded base64 in retries
+- Fix `pushFile` error handling — `getFile` catch no longer masks `putFile` errors
+- Fix stale collection counts after bulk move — update `_linkCounts` cache on collectionId change
+- Fix SW cache — bump to `v3` and add PNG favicons to cache list
+- Add longer error toasts (10s) with copy-to-clipboard button
+- Add favicon PNGs (32×32, 192×192, 512×512, 180×180) for Full PWA + iOS support
+- Add toast validation messages when sync fails due to missing GitHub config
+- Remove all Simple Icons (si- prefix) — Lucide only
+- Remove unused `crypto.js` module (~100 lines)
+- Deduplicate 149 lines of CSS in list view section
+- Add 80+ new Lucide icons across 8 categories
+- Add troubleshooting section to README with reset commands
+
 ### [v0.1.5](https://github.com/mojoaar/linkhive/releases/tag/v0.1.5) — Bugfix
 
 - Fix concurrent auto-sync pushing multiple files causing 409 SHA conflicts — added sync lock with deferred queue
