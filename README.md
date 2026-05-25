@@ -139,6 +139,24 @@ All icons are embedded as inline SVG paths in `js/icons.js` — no external icon
 
 ---
 
+## Troubleshooting
+
+### Reset everything
+
+If you need to start fresh, paste this in the DevTools console (F12 → Console):
+
+```js
+localStorage.removeItem('linkhive_config');
+localStorage.removeItem('linkhive_profiles');
+localStorage.removeItem('linkhive_active_profile');
+indexedDB.deleteDatabase('linkhive_db');
+location.reload();
+```
+
+This wipes your config, all link data, and reloads the app. You'll see the onboarding screen on the next load.
+
+---
+
 ## License
 
 MIT © [Morten Johansen](https://johansen.foo)
