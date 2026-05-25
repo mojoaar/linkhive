@@ -124,5 +124,12 @@ LinkHive.COLLECTION_ICONS = [
   'spider', 'snake', 'whale', 'shrimp', 'crab', 'octopus',
   'horse', 'paw-print',
   'app-window', 'app-window-mac', 'grid-2x2', 'grid-3x2',
-  'layout-panel-top', 'layout-template', 'panels-top-left'
+  'layout-panel-top', 'layout-template', 'panels-top-left',
+  'notebook', 'notebook-tabs', 'scroll-text', 'map-pinned',
+  'tags', 'signpost', 'store', 'bitcoin',
+  'triangle-alert', 'badge-dollar-sign', 'badge-euro',
+  'badge-pound-sterling', 'book-marked', 'square-pen',
+  'ticket-slash', 'audio-lines', 'layout-list',
+  'rows-2', 'rows-3', 'rows-4', 'file-code-corner',
+  'list-filter-plus', 'list-plus'
 ];
