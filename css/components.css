@@ -973,6 +973,7 @@
   flex-wrap: wrap;
   flex: 1;
   min-width: 0;
+  margin-bottom: 0;
 }
 
 .link-grid.list-view .link-card-tags .tag {

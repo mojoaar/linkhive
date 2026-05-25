@@ -1,4 +1,4 @@
-var CACHE_NAME = 'linkhive-v3';
+var CACHE_NAME = 'linkhive-v4';
 var STATIC_ASSETS = [
   '/',
   '/index.html',
