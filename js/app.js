@@ -291,8 +291,8 @@ LinkHive.Sync = (function () {
     var parts = config.githubRepo.split('/');
     var client = new LinkHive.GitHubClient(config.githubToken, parts[0], parts[1], config.githubBranch);
 
-    var getAll = function () {
-      return Promise.all([LinkHive.LinkStore.getCollections(), LinkHive.LinkStore.getLinks()]);
+    var getFile = function (path) {
+      return client.getFile(path).then(function (data) { return data ? data.content : null; }).catch(function () { return null; });
     };
 
     var pushFile = function (path, data) {
@@ -307,43 +307,72 @@ LinkHive.Sync = (function () {
       });
     };
 
-    return getAll().then(function (results) {
-      var collections = results[0];
-      var links = results[1];
-      var chunkSize = 250;
-      var chunks = [];
-      for (var i = 0; i < links.length; i += chunkSize) {
-        chunks.push(links.slice(i, i + chunkSize));
+    var mergeById = function (local, remote) {
+      var map = {};
+      (remote || []).forEach(function (item) { map[item.id] = item; });
+      (local || []).forEach(function (item) { map[item.id] = item; });
+      return Object.values(map);
+    };
+
+    // Pull GitHub data
+    return getFile('data/index.json').then(function (index) {
+      var pullLinks = [];
+      if (index && index.chunks) {
+        for (var i = 0; i < index.chunks; i++) { pullLinks.push(getFile('data/links-' + i + '.json')); }
       }
+      return Promise.all(pullLinks).then(function (linkArrays) {
+        var githubLinks = [];
+        linkArrays.forEach(function (arr) { if (arr) githubLinks = githubLinks.concat(arr); });
+        return getFile('data/collections.json').then(function (githubColls) {
+          // Merge with local data
+          return Promise.all([LinkHive.LinkStore.getCollections(), LinkHive.LinkStore.getLinks()]).then(function (results) {
+            var mergedColls = mergeById(results[0], githubColls || []);
+            var mergedLinks = mergeById(results[1], githubLinks);
+            // Import merged data into local store
+            var data = { version: 1, collections: mergedColls, links: mergedLinks };
+            return LinkHive.LinkStore.importData(JSON.stringify(data)).then(function () {
+              // Push merged data back to GitHub
+              var chunkSize = 250;
+              var chunks = [];
+              for (var j = 0; j < mergedLinks.length; j += chunkSize) {
+                chunks.push(mergedLinks.slice(j, j + chunkSize));
+              }
 
-      var pushCollWithRetry = function (attempts) {
-        return pushFile('data/collections.json', collections).catch(function (e) {
-          if (attempts > 0 && e.message.indexOf('409') !== -1) {
-            return LinkHive.LinkStore.loadAll().then(function () {
-              return getAll().then(function (fresh) {
-                collections = fresh[0];
-                links = fresh[1];
-                chunks = [];
-                for (var i = 0; i < links.length; i += chunkSize) {
-                  chunks.push(links.slice(i, i + chunkSize));
-                }
-                return pushCollWithRetry(attempts - 1);
+              var pushCollWithRetry = function (attempts) {
+                return pushFile('data/collections.json', mergedColls).catch(function (e) {
+                  if (attempts > 0 && e.message.indexOf('409') !== -1) {
+                    return LinkHive.LinkStore.loadAll().then(function () {
+                      return LinkHive.LinkStore.getLinks().then(function (freshLinks) {
+                        mergedLinks = mergeById([] , freshLinks);
+                        var freshChunks = [];
+                        for (var j = 0; j < mergedLinks.length; j += chunkSize) {
+                          freshChunks.push(mergedLinks.slice(j, j + chunkSize));
+                        }
+                        chunks = freshChunks;
+                        return pushCollWithRetry(attempts - 1);
+                      });
+                    });
+                  }
+                  throw e;
+                });
+              };
+
+              return pushCollWithRetry(2).then(function () {
+                var chain = Promise.resolve();
+                chunks.forEach(function (chunk, idx) {
+                  chain = chain.then(function () {
+                    return pushFile('data/links-' + idx + '.json', chunk);
+                  });
+                });
+                return chain.then(function () {
+                  return pushFile('data/index.json', { chunks: chunks.length, total: mergedLinks.length, exportedAt: new Date().toISOString() });
+                });
               });
+            }).then(function () {
+              LinkHive.LinkGrid.render();
+              LinkHive.Sidebar.update();
             });
-          }
-          throw e;
-        });
-      };
-
-      return pushCollWithRetry(2).then(function () {
-        var chain = Promise.resolve();
-        chunks.forEach(function (chunk, idx) {
-          chain = chain.then(function () {
-            return pushFile('data/links-' + idx + '.json', chunk);
           });
-        });
-        return chain.then(function () {
-          return pushFile('data/index.json', { chunks: chunks.length, total: links.length, exportedAt: new Date().toISOString() });
         });
       });
     });
