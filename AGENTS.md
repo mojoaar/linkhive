@@ -61,6 +61,11 @@ Raindrop.io CSV import uses a state-machine parser in `modals.js:parseCSV()` tha
 - No framework, no TypeScript, no JSX — vanilla JS only
 - CSS uses CSS custom properties defined in `themes.css` — never hardcode theme colors in components
 
+## Versioning
+
+- **Minor releases** (`0.2.0`, `0.3.0`, ...): bump `LinkHive.VERSION` in `config.js`, update `README.md` changelog, create Git tag, push with `--tags`
+- **Patch/bugfix releases**: bump `LinkHive.VERSION` (e.g. `0.2.1`), update changelog, commit and push to `main` — **no Git tag**
+
 ## Deploy
 
 - Static file server (Caddy, Nginx, GitHub Pages)
