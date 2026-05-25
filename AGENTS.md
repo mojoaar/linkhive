@@ -4,7 +4,7 @@
 
 - **Zero-dependency SPA** — pure HTML/CSS/JS. No npm, no build step, no CDN. Open `index.html` directly or serve via any static server.
 - **Storage**: IndexedDB (`linkhive_db`) via `js/storage.js`, with in-memory fallback if IndexedDB is unavailable. GitHub sync uses chunked JSON files in `data/` (500 links per chunk to stay under 1MB limit).
-- **Config**: `localStorage['linkhive_config']` for user settings. `config.json` (gitignored, copy from `config.example.json`) for server-managed deploys — loaded once at boot in `configStore.js:loadServerConfig()`.
+- **Config**: `localStorage['linkhive_config']` for user settings. `localStorage['linkhive_sidebar_collapsed']` persists the desktop sidebar collapse state. `config.json` (gitignored, copy from `config.example.json`) for server-managed deploys — loaded once at boot in `configStore.js:loadServerConfig()`.
 
 ## Script load order (critical)
 
@@ -34,11 +34,19 @@ CSS custom properties on `<html>` via `data-theme` and `data-mode` attributes. N
 
 ## Icon system
 
-`js/icons.js` contains ~350 inline SVG paths in a `ICONS` object. `renderIcons()` replaces `[data-lucide]` elements with `<svg>` elements. No CDN, no external dependencies. To add an icon: add a path entry to `ICONS` in `icons.js`, then add the name to `COLLECTION_ICONS` in `config.js`.
+`js/icons.js` contains ~350 inline SVG paths in a `ICONS` object. `renderIcons()` replaces `[data-lucide]` elements with `<svg>` elements. No CDN, no external dependencies. To add an icon: add a path entry to `ICONS` in `icons.js`, then add the name to `COLLECTION_ICONS` in `config.js`. The `skull` icon is present in both and is used by the dead link checker.
 
 ## Link list view CSS
 
 The list view card structure is a deliberately simple block layout — the header is a flex row with `[checkbox] [favicon] [title flex:1] [actions]`. Description and bottom-row (tags + collection/date) sit below as block elements. Do NOT restructure this with flex-wrap or absolute positioning — it was iterated extensively and the current layout works.
+
+## Dead link checker
+
+Settings → Tools → "Check for Dead Links". Uses `fetch(url, { method: 'HEAD', mode: 'no-cors' })` with a 5s `AbortController` timeout to detect dead domains. A `TypeError` (network failure) = dead; an `AbortError` (timeout) = assume alive. Skips `http://` URLs (mixed-content false positives on HTTPS hosts). Skips links already in the "Dead Links" collection on re-run. Dead links are moved to a "Dead Links" collection (skull icon, `#f38ba8`) with their original `collectionId` preserved in a `deadFrom` field. Implemented in `modals.js:checkDeadLinks()`.
+
+## Sidebar collapse
+
+Desktop (≥1024px) sidebar collapses when the hamburger button is clicked. Adds/removes `.sidebar-collapsed` on `#appLayout`. CSS transitions on `.sidebar` (transform), `.app-layout` (padding-left), and `.header` (left) run simultaneously. State persisted to `localStorage['linkhive_sidebar_collapsed']` (`'1'` = collapsed). Implemented in `sidebar.js:_setDesktopCollapsed()`. Mobile overlay behaviour is unchanged.
 
 ## Auto-sync
 
@@ -50,7 +58,7 @@ Raindrop.io CSV import uses a state-machine parser in `modals.js:parseCSV()` tha
 
 ## Service worker
 
-`sw.js` caches all static assets on install. Cache-first with network fallback. Must update `STATIC_ASSETS` array when adding/removing JS or CSS files.
+`sw.js` caches all static assets on install. Cache-first with network fallback. Current cache name is `linkhive-v5`. Must update `STATIC_ASSETS` array and bump the cache name when adding/removing JS or CSS files.
 
 ## File conventions
 
@@ -61,11 +69,11 @@ Raindrop.io CSV import uses a state-machine parser in `modals.js:parseCSV()` tha
 
 ## Browser extension
 
-`extensions/chrome/` is a Chrome MV3 extension that saves links from any tab via `Cmd+Shift+L`. Uses a settings form (token, repo, branch) persisted via `chrome.storage.sync`. Reads/writes links and collections directly to the GitHub repo's `data/` directory. Key files:
+`extensions/chrome/` is a Chrome MV3 extension that saves links from any tab via `Cmd+Shift+L`. Uses a settings form (token, repo, branch) persisted via `chrome.storage.sync`. Reads/writes links and collections directly to the GitHub repo's `data/` directory. On popup open, auto-captures page title and meta description via `chrome.scripting.executeScript`. Key files:
 
 - `popup/popup.html` + `popup.js` + `popup.css` — the popup UI
 - `shared/data-model.js` — `LinkHiveExt` utilities (makeLink, isDuplicate, findLinkByUrl)
-- `shared/github.js` — `LinkHiveExt` GitHub API client (fetchCollections, fetchLinks, addLink, updateLink)
+- `shared/github.js` — `LinkHiveExt` GitHub API client (fetchCollections, fetchLinks, addLink, updateLink); uses `fetch` + `TextDecoder('utf-8')` — never XHR
 - `icons/` — cloud icons for light and dark mode toolbars
 - `background.js` — service worker for `onInstalled` and icon switching via `onMessage`
 
