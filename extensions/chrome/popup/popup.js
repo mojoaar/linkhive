@@ -1,11 +1,15 @@
 (function () {
 
 var _collections = [];
+var _token = '';
+var _owner = LinkHiveExt.REPO.split('/')[0];
+var _repo = LinkHiveExt.REPO.split('/')[1];
+var _branch = LinkHiveExt.BRANCH;
 
 function $(id) { return document.getElementById(id); }
 
 function show(viewId) {
-  $('configError').classList.add('hidden');
+  $('setupView').classList.add('hidden');
   $('addView').classList.add('hidden');
   $(viewId).classList.remove('hidden');
 }
@@ -19,23 +23,41 @@ function status(elId, msg, type) {
 
 // ─── Init ──────────────────────────────────────────────
 
-if (!LinkHiveExt.config || !LinkHiveExt.config.token) {
-  show('configError');
-  status('configMsg', 'Create extensions/shared/config.js with your GitHub token.', 'error');
-} else {
-  show('addView');
-  initAddView();
-}
+$('setupRepo').textContent = LinkHiveExt.REPO;
+
+LinkHiveExt.fetchConfig(_owner, _repo, _branch).then(function (config) {
+  if (config && config.token) {
+    _token = config.token;
+    show('addView');
+    initAddView();
+  } else {
+    show('setupView');
+  }
+}).catch(function () {
+  show('setupView');
+});
+
+// ─── Setup ─────────────────────────────────────────────
+
+$('setupSave').addEventListener('click', function () {
+  var token = $('setupToken').value.trim();
+  if (!token) { status('setupStatus', 'Token is required', 'error'); return; }
+  status('setupStatus', 'Validating...', '');
+  LinkHiveExt._getFile(token, _owner, _repo, _branch, 'data/index.json').then(function () {
+    return LinkHiveExt.saveConfig(token, _owner, _repo, _branch, { token: token, repo: LinkHiveExt.REPO, branch: _branch });
+  }).then(function () {
+    _token = token;
+    status('setupStatus', 'Connected!', 'success');
+    show('addView');
+    initAddView();
+  }).catch(function (e) {
+    status('setupStatus', 'Cannot access repo. Check token.', 'error');
+  });
+});
 
 // ─── Add Link View ─────────────────────────────────────
 
 function initAddView() {
-  var token = LinkHiveExt.token;
-  var owner = LinkHiveExt.repo.split('/')[0];
-  var repo = LinkHiveExt.repo.split('/')[1];
-  var branch = LinkHiveExt.branch;
-
-  // Collect tab info
   try {
     var tabsApi = chrome && chrome.tabs ? chrome.tabs : (browser && browser.tabs ? browser.tabs : null);
     if (tabsApi) {
@@ -49,8 +71,7 @@ function initAddView() {
     }
   } catch(e) {}
 
-  // Fetch collections from GitHub
-  LinkHiveExt.fetchCollections(token, owner, repo, branch).then(function (cols) {
+  LinkHiveExt.fetchCollections(_token, _owner, _repo, _branch).then(function (cols) {
     _collections = cols;
     var sel = $('linkCollection');
     sel.innerHTML = '<option value="">No collection</option>';
@@ -60,8 +81,6 @@ function initAddView() {
   }).catch(function () {
     status('linkStatus', 'Failed to load collections', 'error');
   });
-
-  // ─── Save click ─────────────────────────────────────
 
   $('linkSave').onclick = function () {
     var btn = $('linkSave');
@@ -81,11 +100,11 @@ function initAddView() {
     var collection = _collections.find(function (c) { return c.id === collectionId; });
     var link = LinkHiveExt.makeLink(url, title, desc, collectionId, collection ? collection.slug : '', tags);
 
-    LinkHiveExt.fetchLinks(token, owner, repo, branch).then(function (links) {
+    LinkHiveExt.fetchLinks(_token, _owner, _repo, _branch).then(function (links) {
       if (LinkHiveExt.isDuplicate(url, links)) {
         status('linkStatus', 'Link already exists — saving anyway', '');
       }
-      return LinkHiveExt.addLink(token, owner, repo, branch, link, _collections);
+      return LinkHiveExt.addLink(_token, _owner, _repo, _branch, link, _collections);
     }).then(function () {
       status('linkStatus', 'Saved!', 'success');
       btn.textContent = 'Saved ✓';

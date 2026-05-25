@@ -6,11 +6,15 @@
 <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-<div id="configError" class="view">
+<div id="setupView" class="view">
   <h1>LinkHive</h1>
-  <p class="tagline">Never lose a link again</p>
-  <p class="status error" id="configMsg">Config not found.</p>
-  <p style="font-size:11px;color:#656d76">Create <code>extensions/shared/config.js</code> with your GitHub credentials.</p>
+  <p class="tagline">Save to <span id="setupRepo">mojoaar/linkhive</span></p>
+  <div class="field">
+    <label>GitHub Token</label>
+    <input type="password" id="setupToken" placeholder="github_pat_...">
+  </div>
+  <button id="setupSave">Connect &amp; Save</button>
+  <p class="status" id="setupStatus"></p>
 </div>
 
 <div id="addView" class="view hidden">
@@ -41,7 +45,6 @@
   <p class="status" id="linkStatus"></p>
 </div>
 
-<script src="../shared/config.js"></script>
 <script src="../shared/data-model.js"></script>
 <script src="../shared/github.js"></script>
 <script src="popup.js"></script>

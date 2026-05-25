@@ -1,9 +1,7 @@
 var LinkHiveExt = LinkHiveExt || {};
 
-LinkHiveExt.config = LinkHiveConfig || null;
-LinkHiveExt.token = LinkHiveExt.config ? LinkHiveExt.config.token : '';
-LinkHiveExt.repo = LinkHiveExt.config ? LinkHiveExt.config.repo : '';
-LinkHiveExt.branch = LinkHiveExt.config ? (LinkHiveExt.config.branch || 'main') : 'main';
+LinkHiveExt.REPO = 'mojoaar/linkhive';
+LinkHiveExt.BRANCH = 'main';
 
 LinkHiveExt.makeLink = function (url, title, description, collectionId, collectionSlug, tags) {
   return {
@@ -25,10 +23,4 @@ LinkHiveExt.makeLink = function (url, title, description, collectionId, collecti
 LinkHiveExt.isDuplicate = function (url, links) {
   var u = url.replace(/\/$/, '').toLowerCase();
   return links.some(function (l) { return l.url && l.url.replace(/\/$/, '').toLowerCase() === u; });
-};
-
-LinkHiveExt.collectionIdMap = function (collections) {
-  var map = {};
-  (collections || []).forEach(function (c) { map[c.id] = c; });
-  return map;
 };
