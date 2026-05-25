@@ -107,16 +107,6 @@ button:disabled {
 .status.success { color: #1a7f37; }
 .hint { font-size: 10px; color: #656d76; margin-top: 3px; }
 
-#debugInfo {
-  font-size: 11px;
-  color: #656d76;
-  word-break: break-all;
-  margin-bottom: 4px;
-  padding: 4px 6px;
-  background: #f0f0f0;
-  border-radius: 4px;
-}
-
 @media (prefers-color-scheme: dark) {
   body { color: #cdd6f4; background: #1e1e2e; }
   .tagline, label, .status, .btn-icon { color: #a6adc8; }
@@ -127,5 +117,4 @@ button:disabled {
   button:hover { background: #74c7ec; }
   .status.error { color: #f38ba8; }
   .status.success { color: #a6e3a1; }
-  #debugInfo { color: #a6adc8; background: #313244; }
 }

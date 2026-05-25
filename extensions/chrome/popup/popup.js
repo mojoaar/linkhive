@@ -29,7 +29,6 @@ chrome.storage.sync.get(['githubToken', 'githubRepo', 'githubBranch'], function 
     _repo = items.githubRepo;
     _owner = _repo.split('/')[0];
     _branch = items.githubBranch || 'main';
-    $('debugRepoText').textContent = _repo + ' (' + _branch + ')';
     show('addView');
     initAddView();
   } else {
@@ -57,7 +56,6 @@ $('setupSave').addEventListener('click', function () {
     _repo = repo;
     _owner = parts[0];
     _branch = branch;
-    $('debugRepoText').textContent = _repo + ' (' + _branch + ')';
     status('setupStatus', 'Connected!', 'success');
     show('addView');
     initAddView();
@@ -79,9 +77,7 @@ function initAddView() {
     }
   });
 
-  $('debugInfo').textContent = 'Loading...';
   LinkHiveExt.fetchCollections(_token, _owner, _repoName, _branch).then(function (cols) {
-    $('debugInfo').textContent = 'Parsed: ' + (cols ? cols.length : 0) + ' collections';
     _collections = cols;
     var sel = $('linkCollection');
     sel.innerHTML = '<option value="">No collection</option>';
@@ -92,7 +88,6 @@ function initAddView() {
       $('collHint').classList.remove('hidden');
     }
   }).catch(function (e) {
-    $('debugInfo').textContent = 'Error: ' + (e.message || 'unknown');
     status('linkStatus', 'Failed to load collections', 'error');
   });
 
