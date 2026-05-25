@@ -261,7 +261,6 @@ LinkHive.Sync = (function () {
       LinkHive.Toast.show('Invalid repo format. Use owner/repo-name.', 'error');
       return Promise.reject(new Error('invalid repo'));
     }
-    if (_syncing) { _syncPending = true; return Promise.resolve(); }
     LinkHive.Toast.show('Syncing to GitHub...', '');
     return _doPush();
   }
@@ -270,15 +269,21 @@ LinkHive.Sync = (function () {
     if (_syncing) { _syncPending = true; return Promise.resolve(); }
     _syncing = true;
     _syncPending = false;
-    return _pushToGithub().then(function () {
-      LinkHive.Toast.show('Synced to GitHub', 'success');
+    try {
+      return _pushToGithub().then(function () {
+        LinkHive.Toast.show('Synced to GitHub', 'success');
+        _syncing = false;
+        if (_syncPending) { _syncPending = false; autoSync(); }
+      }).catch(function (err) {
+        LinkHive.Toast.show('Sync failed: ' + (err.message || 'error'), 'error');
+        _syncing = false;
+        if (_syncPending) { _syncPending = false; autoSync(); }
+      });
+    } catch (e) {
       _syncing = false;
-      if (_syncPending) { _syncPending = false; autoSync(); }
-    }).catch(function (err) {
-      LinkHive.Toast.show('Sync failed: ' + (err.message || 'error'), 'error');
-      _syncing = false;
-      if (_syncPending) { _syncPending = false; autoSync(); }
-    });
+      LinkHive.Toast.show('Sync error: ' + (e.message || 'unknown'), 'error');
+      return Promise.resolve();
+    }
   }
 
   function _pushToGithub() {
