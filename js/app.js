@@ -261,8 +261,34 @@ LinkHive.Sync = (function () {
       LinkHive.Toast.show('Invalid repo format. Use owner/repo-name.', 'error');
       return Promise.reject(new Error('invalid repo'));
     }
-    var client = new LinkHive.GitHubClient(config.githubToken, parts[0], parts[1], config.githubBranch);
     LinkHive.Toast.show('Syncing to GitHub...', '');
+    return _doPush();
+  }
+
+  function _doPush() {
+    _syncing = true;
+    _syncPending = false;
+    return _pushToGithub().then(function () {
+      LinkHive.Toast.show('Synced to GitHub', 'success');
+      _syncing = false;
+      if (_syncPending) {
+        _syncPending = false;
+        _doPush().catch(function () {});
+      }
+    }).catch(function (err) {
+      LinkHive.Toast.show('Sync failed: ' + (err.message || 'error'), 'error');
+      _syncing = false;
+      if (_syncPending) {
+        _syncPending = false;
+        _doPush().catch(function () {});
+      }
+    });
+  }
+
+  function _pushToGithub() {
+    var config = LinkHive.Config.get();
+    var parts = config.githubRepo.split('/');
+    var client = new LinkHive.GitHubClient(config.githubToken, parts[0], parts[1], config.githubBranch);
 
     var getAll = function () {
       return Promise.all([LinkHive.LinkStore.getCollections(), LinkHive.LinkStore.getLinks()]);
@@ -294,9 +320,7 @@ LinkHive.Sync = (function () {
           return pushFile('data/index.json', { chunks: chunks.length, total: links.length, exportedAt: new Date().toISOString() });
         });
       });
-    }).then(function () {
-      LinkHive.Toast.show('Synced to GitHub', 'success');
-    }).catch(function (err) { LinkHive.Toast.show('Sync failed: ' + (err.message || 'error'), 'error'); throw err; });
+    });
   }
 
   function pullFromGithub() {
@@ -304,8 +328,14 @@ LinkHive.Sync = (function () {
     if (!config || !config.githubToken || !config.githubRepo) return Promise.reject(new Error('not configured'));
     var parts = config.githubRepo.split('/');
     if (parts.length !== 2) return Promise.reject(new Error('invalid repo'));
-    var client = new LinkHive.GitHubClient(config.githubToken, parts[0], parts[1], config.githubBranch);
     LinkHive.Toast.show('Syncing from GitHub...', '');
+    return _pullFromGithub();
+  }
+
+  function _pullFromGithub() {
+    var config = LinkHive.Config.get();
+    var parts = config.githubRepo.split('/');
+    var client = new LinkHive.GitHubClient(config.githubToken, parts[0], parts[1], config.githubBranch);
 
     var getFile = function (path) {
       return client.getFile(path).then(function (data) {
