@@ -105,3 +105,15 @@ button:disabled {
 
 .status.error { color: #cf222e; }
 .status.success { color: #1a7f37; }
+
+@media (prefers-color-scheme: dark) {
+  body { color: #cdd6f4; background: #1e1e2e; }
+  .tagline, label, .status, .btn-icon { color: #a6adc8; }
+  .btn-icon:hover { color: #cdd6f4; }
+  input, textarea, select { color: #cdd6f4; background: #313244; border-color: #45475a; }
+  input:focus, textarea:focus, select:focus { border-color: #89b4fa; background: #313244; }
+  button { background: #89b4fa; color: #1e1e2e; }
+  button:hover { background: #74c7ec; }
+  .status.error { color: #f38ba8; }
+  .status.success { color: #a6e3a1; }
+}

@@ -13,9 +13,9 @@
   "action": {
     "default_popup": "popup/popup.html",
     "default_icon": {
-      "16": "../shared/icons/icon-16.png",
-      "48": "../shared/icons/icon-48.png",
-      "128": "../shared/icons/icon-128.png"
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
     }
   },
   "commands": {
@@ -27,9 +27,9 @@
     }
   },
   "icons": {
-    "16": "../shared/icons/icon-16.png",
-    "48": "../shared/icons/icon-48.png",
-    "128": "../shared/icons/icon-128.png"
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
   },
   "browser_specific_settings": {
     "gecko": {
